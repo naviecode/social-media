@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Application</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+</head>
+<body>
+<h1>Spring WebSocket Chat</h1>
+<div id="chat-box" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 5px;"></div>
+<input type="text" id="username" placeholder="Enter username" style="width: 20%;" />
+<input type="text" id="message" placeholder="Enter message" style="width: 60%;" />
+<button onclick="sendMessage()">Send</button>
+
+<script>
+    const socket = new SockJS('/chat');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function(frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/topic/messages', function(messageOutput) {
+            showMessage(JSON.parse(messageOutput.body));
+        });
+    });
+
+    function sendMessage() {
+        const username = document.getElementById('username').value;
+        const message = document.getElementById('message').value;
+        stompClient.send("/app/sendMessage", {}, JSON.stringify({ 'username': username, 'message': message }));
+        document.getElementById('message').value = '';
+    }
+
+    function showMessage(message) {
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML += `<p><strong>${message.username}:</strong> ${message.message}</p>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
+</body>
+</html>
