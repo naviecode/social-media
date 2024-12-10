@@ -25,9 +25,14 @@ public class AuthController {
     public String login(HttpServletRequest request) {
         String token = getJwtFromRequest(request);
 
+//        if ("unauthorized".equals(error)) {
+//            model.addAttribute("errorMessage", "Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
+//        }
+
         if (token != null && jwtUtils.validateJwtToken(token)) {
             return "redirect:/";
         }
+
         return "auth/login";
     }
     @GetMapping("/register")

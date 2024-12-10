@@ -28,7 +28,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         else if (jwt != null && jwtUtils.isTokenExpired(jwt)) {
-            response.sendRedirect("/auth/login");
+            response.sendRedirect("/auth/login?error=unauthorized");
             return;
         }
         filterChain.doFilter(request, response);
