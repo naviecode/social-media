@@ -34,7 +34,4 @@ public class DatabaseConnection {
         return connection;
     }
 
-    public void query(String sql) {
-        // Thực thi SQL logic ở đây nếu cần
-    }
 }
