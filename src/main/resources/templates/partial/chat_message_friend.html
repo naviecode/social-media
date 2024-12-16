@@ -1,0 +1,43 @@
+<div class="chat">
+    <input type="hidden" id="loginId" th:attr="data-loginId=${userIdLogin}">
+    <div class="header">
+        <img alt="Chat profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/Zoup9T5EEK5aPllI1ivvp3SpsYhSt54TeZ3vAGZnQsFTKZ8JA.jpg" width="40"/>
+        <div class="info">
+            <div class="name" th:text="${chatName}"></div>
+            <div class="status">
+                Active 2m ago
+            </div>
+        </div>
+            <div class="icons">
+                <i class="fas fa-info-circle">
+                </i>
+            </div>
+    </div>
+
+    <div id="messages" class="messages">
+        <div class="profile-header">
+            <img alt="Profile picture of a person holding a camera" height="80" src="https://storage.googleapis.com/a1aa/image/E1GHWdeUexu3J0fh2UzxdMfn185STjjCucqIUMUpoZwE2isPB.jpg" width="80"/>
+            <h2 th:text="hahaha"></h2>
+            <p>
+                Social-media
+            </p>
+            <button th:if="${!isGroup}">
+                <a href="/">View profile</a>
+            </button>
+        </div>
+
+        <div class="message" th:each="message : ${messageList}" th:classappend="${message.getSenderId() == userIdLogin ? 'sent' : ''}">
+            <img alt="User profile picture" th:if="${message.getSenderId() == userIdLogin ? false : true}" height="40" src="https://storage.googleapis.com/a1aa/image/wDG5C9sCdXLRHpPFzUHJkkeD8ZhLWw9u5D6ea6MEDEchUy4TA.jpg" width="40"/>
+            <div class="text" th:text="${message.getMessageText()}"></div>
+        </div >
+    </div>
+    <div class="message-input" onkeypress="inputMessKeyPress(this)">
+        <i class="far fa-smile emoji">
+        </i>
+        <input id="message-input" placeholder="Message..." type="text"/>
+        <button id="send-btn" onclick="sendMessage()">
+            Gửi
+        </button>
+    </div>
+</div>
+

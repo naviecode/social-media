@@ -36,7 +36,7 @@ public class AuthService {
         if(!passwordEncoder.matches(password, user.getPassword())) {
             return ResponseServiceEntity.error(ErrorCodes.ERROR_AUTH_LOGIN_FAIL);
         }
-        return ResponseServiceEntity.success(jwtUtils.generateJwtToken(user.getUsername()),ErrorCodes.SUCCESS);
+        return ResponseServiceEntity.success(jwtUtils.generateJwtToken(user.getUsername(), user.getUserId()),ErrorCodes.SUCCESS);
     }
 
 }

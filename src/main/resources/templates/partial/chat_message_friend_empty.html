@@ -1,0 +1,31 @@
+<div class="chat_wrap">
+  <div class="chat_empty">
+    <div class="icon-circle">
+      <i class="fab fa-facebook-messenger"></i>
+    </div>
+    <div class="title">Your messages</div>
+    <div class="subtitle">Send a message to start a chat.</div>
+    <a href="#" class="btn" onclick="showPopup(event)">Send message</a>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closePopup(event)"></div>
+
+<div class="popupAddGroup" id="newMessagePopup" style="display: none;">
+  <div class="header">
+    <h2>New message</h2>
+    <span class="close" id="closePopup" onclick="closePopup()">&times;</span>
+  </div>
+  <div class="tags">
+    <input type="text" class="search" oninput="debounceSearch(event)" placeholder="Search...">
+  </div>
+  <div class="content">
+    <div id="friendList" class="user-list">
+      <p>No account found.</p>
+    </div>
+  </div>
+  <div class="footer">
+    <button id="chatButton" onclick="onChatButtonClick()" disabled>Chat</button>
+  </div>
+</div>
+

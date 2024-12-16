@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/static/css/chat.css" >
+    <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .navbar {
+      width: 60px;
+      background-color: #fff;
+      border-right: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0;
+    }
+    .navbar-home{
+        color:black;
+    }
+    .navbar-search{
+        color:black;
+    }
+    .navbar-main-user{
+        color:black;
+    }
+    .navbar i {
+      font-size: 24px;
+      margin: 20px 0;
+      cursor: pointer;
+    }
+    .sidebar {
+      width: 300px;
+      background-color: #f5f5f5;
+      border-right: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar .header {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #ddd;
+    }
+    .sidebar .header img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+    }
+    .sidebar .header .username {
+      margin-left: 10px;
+      font-weight: bold;
+    }
+    .sidebar .header .icons {
+      display: flex;
+      align-items: center;
+    }
+    .sidebar .header .icons i {
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .sidebar .header .user{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .sidebar .search {
+      padding: 10px;
+    }
+    .sidebar .search input {
+      width: 100%;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .sidebar .contacts {
+      flex: 1;
+      overflow-y: auto;
+      border-top:1px solid #ddd;
+    }
+    .sidebar .contacts .contact {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #ddd;
+    }
+    .sidebar .contacts .contact img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+    }
+    .sidebar .contacts .contact .info {
+      margin-left: 10px;
+    }
+    .sidebar .contacts .contact .info .name {
+      font-weight: bold;
+    }
+    .sidebar .contacts .contact .info .status {
+      font-size: 12px;
+      color: gray;
+    }
+    #chat{
+        width: 100%;
+        position: relative;
+
+    }
+    .chat_wrap{
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chat {
+      height: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat .header {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+    .chat .header img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+    }
+    .chat .header .info {
+      margin-left: 10px;
+    }
+    .chat .header .info .name {
+      font-weight: bold;
+    }
+    .chat .header .info .status {
+      font-size: 12px;
+      color: gray;
+    }
+    .chat .header .icons {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+    }
+    .chat .header .icons i {
+      margin-left: 10px;
+      cursor: pointer;
+    }
+    .chat .messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .chat .messages .message {
+      display: flex;
+      margin-bottom: 10px;
+    }
+    .chat .messages .message img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+    }
+    .chat .messages .message .text {
+      margin-left: 10px;
+      background-color: #f1f1f1;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 60%;
+    }
+    .chat .messages .message.sent .text {
+      background-color: #d1e7ff;
+      margin-left: auto;
+    }
+    .chat .messages .message .time {
+      font-size: 12px;
+      color: gray;
+      margin-top: 5px;
+    }
+    .chat .input {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      border-top: 1px solid #ddd;
+    }
+    .chat .input input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+    }
+    .chat .input .icons {
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .chat .input .icons i {
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .chat_empty {
+      text-align: center;
+    }
+    .chat_empty .icon-circle {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #000;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 20px;
+    }
+    .chat_empty .icon-circle i {
+      font-size: 50px;
+      color: #000;
+    }
+    .chat_empty .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .chat_empty .subtitle {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .chat_empty .btn {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .chat_empty .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .chat .messages .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 10px;
+    }
+    .chat .messages .profile-header img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+    }
+    .chat .messages .profile-header h2 {
+        margin: 10px 0 5px;
+        font-size: 18px;
+    }
+    .chat .messages .profile-header p {
+        margin: 0;
+        color: #888;
+    }
+    .chat .messages .profile-header button {
+        margin-top: 10px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #e0e0e0;
+        cursor: pointer;
+    }
+
+    .chat .messages .profile-header button a{
+        color: black;
+        text-decoration: none;
+    }
+    .chat .message-input {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-top: 1px solid #e0e0e0;
+    }
+    .chat .message-input input {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 20px;
+        background-color: #f1f0f0;
+        margin-right: 10px;
+    }
+    .chat .message-input button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 20px;
+        background-color: #0084ff;
+        color: #fff;
+        cursor: pointer;
+    }
+    .chat .message-input .emoji {
+        margin-right: 10px;
+        cursor: pointer;
+    }
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 999;
+    }
+
+    .popupAddGroup {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+    .popupAddGroup .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    .popupAddGroup .header h2 {
+        margin: 0;
+        font-size: 16px;
+    }
+    .popupAddGroup .header .close {
+        font-size: 20px;
+        cursor: pointer;
+    }
+    .popupAddGroup .tags {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    .popupAddGroup .tag {
+        background-color: #e6f3ff;
+        color: #007bff;
+        padding: 5px 10px;
+        border-radius: 15px;
+        margin: 5px;
+        display: flex;
+        align-items: center;
+    }
+    .popupAddGroup .tag .remove {
+        margin-left: 5px;
+        cursor: pointer;
+    }
+    .popupAddGroup .search {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 5px;
+        font-size: 14px;
+    }
+    .popupAddGroup .content {
+        padding: 10px;
+        height: 200px;
+        overflow-y: auto;
+    }
+    .popupAddGroup .content p {
+        margin: 0;
+        color: #888;
+    }
+    .popupAddGroup .footer {
+        padding: 10px;
+        border-top: 1px solid #ccc;
+        text-align: center;
+    }
+    .popupAddGroup .footer button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .popupAddGroup .user-list {
+        max-height: 300px;
+    }
+    .popupAddGroup .user-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .popupAddGroup .user-item {
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .popupAddGroup .user-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .popupAddGroup .user-item img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    .popupAddGroup .user-item .user-info {
+        flex-grow: 1;
+    }
+    .popupAddGroup .user-item .user-info h2 {
+        font-size: 14px;
+        margin: 0;
+    }
+    .popupAddGroup .user-item .user-info p {
+        font-size: 12px;
+        color: #888;
+        margin: 0;
+    }
+    .popupAddGroup .user-item .select {
+        font-size: 18px;
+    }
+    .popupAddGroup #chatButton {
+        opacity: 0.5;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .popupAddGroup #chatButton.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+      <a href="/" class="navbar-home">
+          <i class="fas fa-home">
+          </i>
+      </a>
+      <a  class="navbar-search">
+          <i class="fas fa-search">
+          </i>
+      </a>
+      <a href="/userinfo" class="navbar-main-user">
+          <i class="fas fa-user">
+          </i>
+      </a>
+  </div>
+  <div id="sidebar" class="sidebar"></div>
+  <div id="chat"></div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+      let stompClient;
+      let chatId = null;
+      let loginUserId = null;
+      let timeout;
+    $(document).ready(function() {
+      $.ajax({
+        url: '/chat/PartialChatListFriend',
+        type: 'GET',
+        success: function(response) {
+          $('#sidebar').html(response);
+        },
+        error: function(xhr, status, error) {
+          console.error('AJAX Error:', error);
+          alert('Không thể tải bạn bè.');
+        }
+      });
+      loadMessages(null);
+      connectToWebSocket();
+    });
+
+
+
+    function connectToWebSocket() {
+      const socket = new SockJS('/chat');
+      stompClient = Stomp.over(socket);
+
+      stompClient.connect({}, () => {
+        console.log("Connected to WebSocket");
+      });
+    }
+
+
+    // Gửi tin nhắn
+    function sendMessage() {
+        loginUserId = Number(document.querySelector("#loginId").getAttribute('data-loginId'))
+
+        const content = document.getElementById("message-input").value;
+        if (content.trim() === "") return;
+        const senderId = loginUserId;
+        const message = { chatId, senderId , content };
+        stompClient.send("/app/send-message/" + chatId, {}, JSON.stringify(message));
+        document.getElementById("message-input").value = ""; // Xóa nội dung input
+    }
+
+    // Hàm hiển thị tin nhắn trong giao diện
+    function displayMessage(chatMessage) {
+        loginUserId = Number(document.querySelector("#loginId").getAttribute('data-loginId'))
+      let chatBox = document.getElementById("messages");
+      const newMessage = document.createElement("div");
+      if(chatMessage.senderId === loginUserId){
+          newMessage.classList.add("message", "sent");
+          newMessage.innerHTML = `<div class="text">${chatMessage.content}</div>`;
+      }
+      else{
+          newMessage.classList.add("message");
+          newMessage.innerHTML = `
+              <img alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/wDG5C9sCdXLRHpPFzUHJkkeD8ZhLWw9u5D6ea6MEDEchUy4TA.jpg" width="40"/>
+             <div class="text">
+                ${chatMessage.content}
+            </div>`;
+
+      }
+      chatBox.appendChild(newMessage);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function loadMessages(element) {
+      var userId = null;
+      if(element != null){
+          chatId = element.getAttribute('data-chatId');
+          userId = element.getAttribute('data-userid2') ?? "0";
+      }
+      $.ajax({
+        url: '/chat/PartialChatMessageFriend',
+        type: 'GET',
+        contentType: 'application/x-www-form-urlencoded',
+        data: { userId: userId , chatId: chatId},
+        success: function(response) {
+            $('#chat').html(response);
+            if(element != null){
+                stompClient.subscribe('/topic/chat/'+ chatId, (message) => {
+                    const chatMessage = JSON.parse(message.body);
+                    console.log("Received message: ", chatMessage);
+
+                    displayMessage(chatMessage);
+                });
+            }
+
+        },
+        error: function(xhr, status, error) {
+          console.error('AJAX Error:', error);
+          alert('Không thể tải tin nhắn.');
+        }
+      });
+    }
+
+    function inputMessKeyPress(event){
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    }
+
+    function showPopup(e){
+        e.preventDefault();
+        const newMessagePopup = document.getElementById('newMessagePopup');
+        const overlay = document.getElementById('overlay');
+        if (newMessagePopup && overlay) {
+            newMessagePopup.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+    }
+
+    function closePopup(){
+        const newMessagePopup = document.getElementById('newMessagePopup');
+        const overlay = document.getElementById('overlay');
+
+        if (newMessagePopup && overlay) {
+            newMessagePopup.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+    }
+    function debounce(func, delay) {
+          return function (...args) {
+              clearTimeout(timeout);
+              timeout = setTimeout(() => func.apply(this, args), delay);
+          };
+    }
+    function fetchFriendsWithAjax(name) {
+      if (!name) {
+          $("#friendList").empty();
+          return;
+      }
+
+      $.ajax({
+          url: "/friends/search",
+          method: "GET",
+          data: { name: name},
+          success: function (response) {
+              let listItems = response.data.map(friend => `
+                <div class="user-item" data-user-id="${friend.userId2}" onclick="selectUser(event)">
+                    <img alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/Rk0RfHpTtzwuPC5genqKpfhxJrKSmvdyojEpn1xYe8tR0xsPB.jpg" width="40"/>
+                    <div class="user-info">
+                      <h2>
+                        ${friend.fullName}
+                      </h2>
+                      <p>
+                        quangsonnnn
+                      </p>
+                    </div>
+                    <div class="select">
+                      <input name="user" type="radio"/>
+                    </div>
+                  </div>
+               `).join('');
+              $("#friendList").html(listItems || "<p>No account found.</p>");
+          },
+          error: function () {
+              console.error("Error fetching friends.");
+          }
+      });
+    }
+      const debounceSearch = debounce((event) => {
+          const input = event.target.value;
+          fetchFriendsWithAjax(input);
+      }, 1000);
+
+      function selectUser(event) {
+          const userItem = event.currentTarget;
+          const userName = userItem.querySelector('.user-info h2').innerText.trim();
+          const userId = userItem.dataset.userId; // Lấy ID user nếu cần (thêm vào dataset HTML)
+
+          const existingTags = Array.from(document.querySelectorAll('.tags .tag'));
+          const isAlreadyTagged = existingTags.some(tag => tag.innerText.includes(userName));
+
+          if (!isAlreadyTagged) {
+              const tagsContainer = document.querySelector('.tags');
+              const tag = document.createElement('div');
+              tag.className = 'tag';
+              tag.dataset.userId = userId; // Gắn ID user vào tag
+              tag.innerHTML = `${userName} <span class="remove" onclick="removeTag(this)">&times;</span>`;
+              tagsContainer.insertBefore(tag, tagsContainer.querySelector('.search'));
+
+              userItem.remove();
+          }
+
+          document.querySelector('.tags .search').value = '';
+          document.getElementById('chatButton').classList.add('active');
+          document.getElementById('chatButton').disabled = false;
+      }
+
+      function removeTag(removeButton) {
+          const tag = removeButton.parentElement;
+          const userName = tag.innerText.replace('×', '').trim();
+          const userId = tag.dataset.userId;
+
+          tag.remove();
+
+          const friendList = document.getElementById('friendList');
+          const userItem = document.createElement('div');
+          userItem.className = 'user-item';
+          userItem.dataset.userId = userId;
+          userItem.innerHTML = `
+            <img alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/Rk0RfHpTtzwuPC5genqKpfhxJrKSmvdyojEpn1xYe8tR0xsPB.jpg" width="40"/>
+            <div class="user-info">
+                <h2>${userName}</h2>
+            </div>
+            <div class="select">
+                <input name="user" type="radio"/>
+            </div>
+        `;
+          userItem.addEventListener('click', selectUser);
+          friendList.appendChild(userItem);
+
+          const remainingTags = document.querySelectorAll('.tags .tag').length;
+          if (remainingTags === 0) {
+              document.getElementById('chatButton').classList.remove('active');
+              document.getElementById('chatButton').disabled = true;
+          }
+
+          document.getElementById('friendList').innerHTML = '<p>No account found.</p>';
+      }
+
+      function onChatButtonClick() {
+          const selectedUserIds = Array.from(document.querySelectorAll('.tags .tag')).map(tag => tag.dataset.userId);
+
+          if (selectedUserIds.length > 0) {
+              $.ajax({
+                  url: '/chat/createGroup',
+                  method: 'POST',
+                  data: { userIds: selectedUserIds },
+                  success: function(response) {
+                      console.log(response)
+                      if (response.errorCode !== '0') {
+                          alert(`${response.message}`);
+                      } else {
+                          console.log('Group chat created:', response);
+                          alert('Nhóm chat đã được tạo.');
+                      }
+                  },
+                  error: function(xhr, status, error) {
+                      console.error('Error creating group chat:', error);
+                      alert('Không thể tạo nhóm chat.');
+                  }
+              });
+          } else {
+              console.log('No users selected');
+          }
+      }
+
+  </script>
+</body>
+</html>
