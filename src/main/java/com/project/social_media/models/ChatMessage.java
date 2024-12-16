@@ -1,22 +1,32 @@
 package com.project.social_media.models;
 
 public class ChatMessage {
-    private String username;
-    private String message;
+    private Long chatId;
+    private Long senderId;
+    private String content;
 
-    public String getUsername() {
-        return username;
+    public Long getChatId() {
+        return chatId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setChatId(Long chatId) {
+        this.chatId = chatId;
     }
 
-    public String getMessage() {
-        return message;
+    public Long getSenderId() {
+        return senderId;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setSenderId(Long senderId) {
+        this.senderId = senderId;
     }
+
+    public String getContent() {
+        return content;
+    }
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+
 }

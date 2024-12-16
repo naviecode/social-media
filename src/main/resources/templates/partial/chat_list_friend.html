@@ -1,0 +1,45 @@
+<div class="header">
+    <div class="user">
+        <img alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/wDG5C9sCdXLRHpPFzUHJkkeD8ZhLWw9u5D6ea6MEDEchUy4TA.jpg" width="40"/>
+        <span class="username" th:text="${fullName}">
+        </span>
+    </div>
+    <div class="icons">
+        <i class="fas fa-sticky-note">
+        </i>
+        <i class="fas fa-edit">
+        </i>
+    </div>
+</div>
+<div class="search">
+    <input placeholder="Search" type="text"/>
+</div>
+
+<div class="contacts" >
+    <div class="contracts_wrap" th:each="friend : ${friends}">
+        <div class="contact"  th:attr="data-userid2=${friend.getUserId2()}, data-chatId=${friend.getChatId()}" onclick="loadMessages(this)">
+            <img alt="Contact profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/QAKh95Hre928MCQwECa4JOXelifSxGBvudTvdJHqMMxFpkxnA.jpg" width="40"/>
+            <div class="info">
+                <div class="name" th:text="${friend.getFullName()}">
+                </div>
+                <div class="status">
+                    Active 2m ago
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="contacts">
+    <div class="contracts_wrap" th:each="group : ${chatGroups}">
+        <div class="contact" th:attr="data-chatId=${group.getChatId()}" onclick="loadMessages(this)">
+            <img alt="Contact profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/QAKh95Hre928MCQwECa4JOXelifSxGBvudTvdJHqMMxFpkxnA.jpg" width="40"/>
+            <div class="info">
+                <div class="name" th:text="${group.getGroupName()}">
+                </div>
+                <div class="status">
+                    Group chat
+                </div>
+            </div>
+    </div>
+</div>

@@ -25,6 +25,9 @@ public class Messages {
     @Column(name = "sent_at", nullable = false)
     private LocalDateTime sentAt;
 
+    @Column(name = "is_read", nullable = true)
+    private Boolean isRead = false;
+
     // Constructors
     public Messages() {
     }
@@ -75,5 +78,13 @@ public class Messages {
 
     public void setSentAt(LocalDateTime sentAt) {
         this.sentAt = sentAt;
+    }
+
+    public Boolean getIsRead() {
+        return isRead;
+    }
+
+    public void setIsRead(Boolean isRead) {
+        this.isRead = isRead;
     }
 }

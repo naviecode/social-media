@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,7 +25,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String jwt = parseJwt(request);
         if(jwt != null && jwtUtils.validateJwtToken(jwt)) {
             String username = jwtUtils.getUsernameFromJwtToken(jwt);
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
+            Long userId = jwtUtils.getUserIdFromJwtToken(jwt);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username,userId, new ArrayList<>());
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         else if (jwt != null && jwtUtils.isTokenExpired(jwt)) {
