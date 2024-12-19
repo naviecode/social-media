@@ -27,5 +27,7 @@ public interface FriendsRepository  extends JpaRepository<Friends, Long> {
             "WHERE f.userId1 = :userId1 AND " +
             "(SELECT COUNT(cm3.userId) FROM ChatMembers cm3 WHERE cm3.chatId = cm.chatId) = 2")
     List<FriendWithUsernameDto> findFriendsWithUsernameByUserId1(@Param("userId1") Long userId1);
+    @Query("SELECT CASE WHEN f.userId1 = :userId THEN f.userId2 ELSE f.userId1 END FROM Friends f WHERE (f.userId1 = :userId OR f.userId2 = :userId) AND f.status = 'accept'")
+    List<Long> findAcceptedFriendIds(Long userId);
 
 }

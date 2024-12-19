@@ -1,6 +1,7 @@
 package com.project.social_media.controllers;
 
 
+import com.project.social_media.utils.SecurityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,8 +14,10 @@ public class HomeController {
     @GetMapping("/")
     public String homePage(Model model) {
         String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = SecurityUtils.getLoggedInUserId();
         model.addAttribute("username", username);
+        model.addAttribute("userLogin", userId);
 
-        return "pages/trangchu";
+        return "pages/home";
     }
 }

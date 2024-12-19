@@ -1,0 +1,410 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>
+        Instagram Post Creation
+    </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .post-creation {
+            width: 1000px;
+            height: 700px;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .post-creation .header {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #dbdbdb;
+            background-color: #fff;
+        }
+        .post-creation .header i {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .post-creation .header .title {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+        }
+        .post-creation .header .share {
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #0095f6;
+        }
+        .post-creation .content-wrapper {
+            display: flex;
+            flex: 1;
+        }
+        .post-creation .image-container {
+            position: relative;
+            width: 70%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .post-creation img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .post-creation .content {
+            width: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .post-creation .content textarea {
+            width: 100%;
+            border: none;
+            resize: none;
+            outline: none;
+            font-size: 16px;
+            margin-bottom: 10px;
+            height: 100px;
+        }
+        .post-creation .content .options {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .post-creation .content .options i {
+            font-size: 24px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .post-creation .content .options button {
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #000;
+            cursor: pointer;
+            padding: 0;
+        }
+        .post-creation .content .privacy i {
+            font-size: 24px;
+            margin-right: 5px;
+        }
+        .post-creation .content .privacy select {
+            border: none;
+            font-size: 16px;
+            outline: none;
+            cursor: pointer;
+        }
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .carousel .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .carousel .prev {
+            left: 10px;
+        }
+        .carousel .next {
+            right: 10px;
+        }
+        .add-image-frame {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            border: 5px dashed #ccc;
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-sizing: border-box;
+        }
+        .add-image-frame i {
+            font-size: 48px;
+            color: #ccc;
+        }
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+        }
+        .carousel-dots .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .carousel-dots .dot.active {
+            background-color: #ccc;
+        }
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .image-overlay i {
+            font-size: 36px;
+            color: #fff;
+            cursor: pointer;
+        }
+        .image-container:hover .image-overlay {
+            opacity: 1;
+        }
+        .carousel .nav-button:hover ~ .image-overlay,
+        .carousel .carousel-dots:hover ~ .image-overlay,
+        .carousel .add-image-frame:hover ~ .image-overlay,
+        .carousel .dot:hover ~ .image-overlay {
+            opacity: 0 !important;
+        }
+        .carousel .nav-button:hover ~ .image-overlay,
+        .carousel .carousel-dots:hover ~ .image-overlay,
+        .carousel .add-image-frame:hover ~ .image-overlay,
+        .carousel .dot:hover ~ .image-overlay {
+            pointer-events: none;
+        }
+        .add-image-frame:hover .image-overlay {
+            opacity: 0 !important;
+        }
+        .add-image-frame:hover {
+            border-color: #0095f6;
+        }
+    </style>
+</head>
+<body>
+<div class="post-creation">
+    <div class="header">
+        <i class="fas fa-arrow-left" id="close-popup" onclick="closePopup()"></i>
+        <span class="title">
+     Create new post
+    </span>
+        <button class="share" onclick="sharePost()">
+            Share
+        </button>
+    </div>
+    <div class="content-wrapper">
+        <div class="image-container">
+            <div class="carousel">
+                <button class="nav-button prev" onclick="prevImage()">
+                    <i class="fas fa-chevron-left">
+                    </i>
+                </button>
+                <button class="nav-button next" onclick="nextImage()">
+                    <i class="fas fa-chevron-right">
+                    </i>
+                </button>
+                <div class="carousel-images">
+                    <div class="add-image-frame" onclick="document.getElementById('file-input').click()">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </div>
+                <div class="carousel-dots">
+                    <div class="dot active" onclick="goToImage(0)"></div>
+                </div>
+                <div class="image-overlay" id="image-overlay">
+                    <i class="fas fa-edit" onclick="editImage()">
+                    </i>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <textarea placeholder="Write a caption..."></textarea>
+            <div class="options">
+                <div class="privacy">
+                    <i class="fas fa-lock"></i>
+                    <select>
+                        <option value="only-me">Only Me</option>
+                        <option value="friends" selected>Friends</option>
+                        <option value="public">Public</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="file" id="file-input" style="display: none;" multiple accept="image/*" onchange="addImage(event)">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let currentIndex = 1;
+    let totalImages = 1; // Start with 1 for the add-image-frame
+
+    function showImage(index) {
+        const images = document.querySelectorAll('.carousel-images img, .add-image-frame');
+        const dots = document.querySelectorAll('.carousel-dots .dot');
+
+        images.forEach((img, i) => {
+            img.style.opacity = i === index ? '1' : '0';
+        });
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+
+        const imageOverlay = document.getElementById('image-overlay');
+        if(imageOverlay !== null) {
+            if (index === totalImages - 1 || totalImages === 1) {
+                imageOverlay.style.display = 'none';
+            } else {
+                imageOverlay.style.display = 'flex';
+            }
+        }
+    }
+
+    function nextImage() {
+        currentIndex = (currentIndex + 1) % totalImages;
+        showImage(currentIndex);
+    }
+
+    function prevImage() {
+        currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+        showImage(currentIndex);
+    }
+
+    function goToImage(index) {
+        currentIndex = index;
+        showImage(currentIndex);
+    }
+
+    function addImage(event) {
+        const files = event.target.files;
+        const carouselImages = document.querySelector('.carousel-images');
+        const carouselDots = document.querySelector('.carousel-dots');
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const newImage = document.createElement('img');
+                newImage.src = e.target.result;
+                newImage.alt = 'Newly added image';
+                newImage.style.opacity = '0';
+                newImage.onload = function() {
+                    newImage.style.opacity = '1';
+                };
+                carouselImages.insertBefore(newImage, document.querySelector('.add-image-frame'));
+
+                const newDot = document.createElement('div');
+                newDot.classList.add('dot');
+                newDot.onclick = () => goToImage(totalImages - 1);
+                carouselDots.insertBefore(newDot, carouselDots.lastChild);
+
+                totalImages++;
+                currentIndex = totalImages - 2;
+                showImage(currentIndex);
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function editImage() {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.onchange = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const images = document.querySelectorAll('.carousel-images img');
+                    images[currentIndex].src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        fileInput.click();
+    }
+
+    function closePopup() {
+        document.querySelector('.post-creation').style.display = 'none';
+    }
+
+    showImage(currentIndex);
+
+    function sharePost() {
+        const content = document.querySelector('textarea').value;
+        const privacy = document.querySelector('select').value;
+        const images = document.querySelectorAll('.carousel-images img:not(.add-image-frame)');
+        const imagesData = [];
+
+        images.forEach(img => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+            imagesData.push(canvas.toDataURL('image/png').split(',')[1]);
+        });
+
+        $.ajax({
+            url: '/api/posts/create',
+            type: 'POST',
+            contentType: 'application/json', // Send data as JSON
+            data: JSON.stringify({
+                content: content,
+                privacy: privacy,
+                imagesData: imagesData // Base64 strings
+            }),
+            success: function(response) {
+                console.log(response);
+                alert('Post created successfully!');
+                closePopup();
+            },
+            error: function(xhr, status, error) {
+                alert('Failed to create post.');
+            }
+        });
+    }
+</script>
+</body>
+</html>
