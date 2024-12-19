@@ -17,7 +17,7 @@ public class JwtUtils {
     public String generateJwtToken(String username, Long userId) {
         return Jwts.builder()
                 .setSubject(username)
-                .setClaims(Map.of("userId", userId))
+                .addClaims(Map.of("userId", userId))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpiration))
                 .signWith(SignatureAlgorithm.HS256, JWT_SECRET.getBytes(StandardCharsets.UTF_8))

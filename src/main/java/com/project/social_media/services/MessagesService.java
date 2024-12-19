@@ -1,7 +1,9 @@
 package com.project.social_media.services;
 
 import com.project.social_media.constants.ErrorCodes;
+import com.project.social_media.dto.MessageWithSenderNameDto;
 import com.project.social_media.models.Messages;
+import com.project.social_media.models.ResponseServiceEntity;
 import com.project.social_media.models.ResponseServiceListEntity;
 import com.project.social_media.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +16,20 @@ public class MessagesService {
     @Autowired
     private MessageRepository messageRepository;
 
-    public ResponseServiceListEntity<Messages> GetAllMessagesByChatId(Long chatId) {
-        List<Messages> result = messageRepository.findByChatId(chatId);
+    public ResponseServiceListEntity<MessageWithSenderNameDto> GetAllMessagesByChatId(Long chatId) {
+        List<MessageWithSenderNameDto> result = messageRepository.findMessagesWithSenderNameByChatId(chatId);
         return ResponseServiceListEntity.success(result, result.stream().count(), ErrorCodes.SUCCESS);
     }
 
+
+    public ResponseServiceEntity<Integer> markMessagesAsReadByChatId(Long chatId) {
+        int updatedCount = messageRepository.markMessagesAsReadByChatId(chatId);
+        return ResponseServiceEntity.success(updatedCount, ErrorCodes.SUCCESS);
+    }
+
+    public ResponseServiceEntity<Integer> markMessagesAsReadByChatIdAndSenderId(Long chatId, Long senderId) {
+        int updatedCount = messageRepository.markMessagesAsReadByChatIdAndSenderId(chatId, senderId);
+        return ResponseServiceEntity.success(updatedCount, ErrorCodes.SUCCESS);
+    }
 
 }

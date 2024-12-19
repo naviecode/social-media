@@ -18,6 +18,9 @@ public class Chats {
     @Column(name = "group_name")
     private String groupName;
 
+    @Column(name = "user_id_created")
+    private Long userIdCreated;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

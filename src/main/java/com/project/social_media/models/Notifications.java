@@ -12,32 +12,47 @@ public class Notifications {
     @Column(name = "notification_id")
     private Long notificationId;
 
-    @Column(name = "user_id", nullable = false)
+    // ID của người nhận thông báo (dùng cho 1-1)
+    @Column(name = "user_id")
     private Long userId;
 
+    // ID của nhóm (dùng cho thông báo nhóm)
+    @Column(name = "group_id")
+    private Long groupId;
+
+    // Nội dung thông báo
     @Column(name = "content", nullable = false)
     private String content;
 
+    // Loại thông báo: VD: "group", "personal", "system"
     @Column(name = "notification_type", nullable = false)
     private String notificationType;
 
+    // Trạng thái đã đọc hay chưa
     @Column(name = "is_read", nullable = false)
-    private Boolean isRead;
+    private Boolean isRead = false;
 
+    // Thời gian tạo thông báo
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Notifications() {
-    }
+    // Thời gian cập nhật cuối cùng (nếu cần)
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
-    public Notifications(Long userId, String content, String notificationType, Boolean isRead, LocalDateTime createdAt) {
+    public Notifications() {}
+
+    // Parameterized constructor
+    public Notifications(Long userId, Long groupId, String content, String notificationType) {
         this.userId = userId;
+        this.groupId = groupId;
         this.content = content;
         this.notificationType = notificationType;
-        this.isRead = isRead;
-        this.createdAt = createdAt;
+        this.isRead = false;
+        this.createdAt = LocalDateTime.now();
     }
 
+    // Getters and Setters
     public Long getNotificationId() {
         return notificationId;
     }
@@ -52,6 +67,14 @@ public class Notifications {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 
     public String getContent() {
@@ -85,6 +108,15 @@ public class Notifications {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
 
 }
 

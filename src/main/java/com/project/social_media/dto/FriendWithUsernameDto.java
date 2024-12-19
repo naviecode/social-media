@@ -7,6 +7,17 @@ public class FriendWithUsernameDto {
     private String status;
     private String fullName;
     private Long chatId;
+    private String username;
+    private Long unreadMessagesCount;
+    private String lastMessageSender;
+
+    public FriendWithUsernameDto(Long friendId, Long userId1, Long userId2, String status, Long chatId) {
+        this.friendId = friendId;
+        this.userId1 = userId1;
+        this.userId2 = userId2;
+        this.status = status;
+        this.chatId = chatId;
+    }
 
     public FriendWithUsernameDto(Long friendId, Long userId1, Long userId2, String status, String fullName) {
         this.friendId = friendId;
@@ -14,16 +25,18 @@ public class FriendWithUsernameDto {
         this.userId2 = userId2;
         this.status = status;
         this.fullName = fullName;
-        this.chatId = chatId;
     }
 
-    public FriendWithUsernameDto(Long friendId, Long userId1, Long userId2, String status, String fullName, Long chatId) {
+    public FriendWithUsernameDto(Long friendId, Long userId1, Long userId2, String status, String fullName, Long chatId, String username, Long unreadMessagesCount, String lastMessageSender) {
         this.friendId = friendId;
         this.userId1 = userId1;
         this.userId2 = userId2;
         this.status = status;
         this.fullName = fullName;
         this.chatId = chatId;
+        this.username = username;
+        this.unreadMessagesCount = unreadMessagesCount;
+        this.lastMessageSender = lastMessageSender;
     }
 
     public Long getFriendId() {
@@ -61,6 +74,27 @@ public class FriendWithUsernameDto {
     }
     public void setChatId(Long chatId) {
         this.chatId = chatId;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public Long getUnreadMessagesCount() {
+        return unreadMessagesCount;
+    }
+
+    public void setUnreadMessagesCount(Long unreadMessagesCount) {
+        this.unreadMessagesCount = unreadMessagesCount;
+    }
+
+    public String getLastMessageSender() {
+        return lastMessageSender;
+    }
+
+    public void setLastMessageSender(String lastMessageSender) {
+        this.lastMessageSender = lastMessageSender;
     }
 
 }

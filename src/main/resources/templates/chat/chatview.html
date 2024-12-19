@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Title</title>
+    <title>Social Media</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
@@ -40,7 +40,7 @@
       cursor: pointer;
     }
     .sidebar {
-      width: 300px;
+      width: 400px;
       background-color: #f5f5f5;
       border-right: 1px solid #ddd;
       display: flex;
@@ -109,12 +109,22 @@
       font-weight: bold;
     }
     .sidebar .contacts .contact .info .status {
-      font-size: 12px;
-      color: gray;
+        margin-top:4px;
+        font-size: 12px;
+        color: gray;
+    }
+    .contact.highlight {
+        font-weight: bold;
+        background-color: #f0f8ff;
+        border: 1px solid #d1d1d1;
+        border-radius: 5px;
+        padding: 5px;
     }
     #chat{
         width: 100%;
         position: relative;
+        display: flex;
+        justify-content: center;
 
     }
     .chat_wrap{
@@ -125,7 +135,7 @@
     }
     .chat {
       height: 100%;
-      flex: 1;
+        width: 100%;
       display: flex;
       flex-direction: column;
     }
@@ -164,9 +174,16 @@
       padding: 10px;
       overflow-y: auto;
     }
+    .chat .messages .chat-image{
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
     .chat .messages .message {
       display: flex;
       margin-bottom: 10px;
+        align-items: center;
     }
     .chat .messages .message img {
       border-radius: 50%;
@@ -178,8 +195,12 @@
       background-color: #f1f1f1;
       padding: 10px;
       border-radius: 10px;
-      max-width: 60%;
     }
+    .chat .messages .message.sent {
+        flex-direction: row-reverse;
+        margin-bottom: 3px;
+    }
+
     .chat .messages .message.sent .text {
       background-color: #d1e7ff;
       margin-left: auto;
@@ -209,6 +230,23 @@
     .chat .input .icons i {
       margin-left: 10px;
       cursor: pointer;
+    }
+    .chat .chat-content {
+        display: flex;
+        flex-direction: column;
+    }
+    .chat .chat-username {
+        font-size: 14px;
+        color: #b0b0b0;
+        margin-bottom: 5px;
+        margin-left: 20px;
+    }
+    .chat .chat-message {
+        font-size: 16px;
+        border-radius: 15px;
+        padding: 5px 10px;
+        max-width: 100%;
+        word-wrap: break-word;
     }
 
     .chat_empty {
@@ -312,6 +350,7 @@
         margin-right: 10px;
         cursor: pointer;
     }
+
     .overlay {
         position: fixed;
         top: 0;
@@ -450,6 +489,231 @@
         opacity: 1;
         pointer-events: auto;
     }
+    .notification {
+        display: flex;
+        align-items: center;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #f1f1f1;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: opacity 0.3s, transform 0.3s;
+        opacity: 1;
+        transform: translateY(0);
+        z-index: 9999;
+    }
+
+    .notification.hidden {
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+    }
+
+    .notification-avatar {
+        width: 50px;
+        height: 50px;
+        margin-right: 15px;
+        overflow: hidden;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .notification-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .notification-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .notification-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .notification p {
+        margin: 5px 0 0;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .chatboxDetail {
+        width: 0;
+        background-color: #fff;
+        border-left: 1px solid #ddd;
+        padding: 0;
+        transition: right 0.3s ease;
+    }
+    .chatboxDetail.show {
+        width: 25%;
+        padding: 20px;
+    }
+    .header {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .group-name {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .group-name span {
+        font-size: 16px;
+    }
+    .group-name button {
+        padding: 5px 10px;
+        border: none;
+        background-color: #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .mute-messages {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .mute-messages i {
+        margin-right: 10px;
+    }
+    .mute-messages input {
+        margin-left: auto;
+    }
+    .members {
+        margin-bottom: 20px;
+    }
+    .members-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .members-header a{
+        text-decoration: none;
+        color:#333333;
+    }
+    .member {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        position: relative;
+    }
+    .member img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    .member-info {
+        flex-grow: 1;
+    }
+    .member-info .name {
+        font-weight: bold;
+    }
+    .member-info .role {
+        color: #888;
+    }
+    .member-options {
+        cursor: pointer;
+        position: relative;
+    }
+    .remove-member {
+        display: none;
+        position: absolute;
+        top: 20px;
+        right: 0;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+    .remove-member.show {
+        display: block;
+    }
+    .leave-chat, .delete-chat {
+        color: red;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .leave-chat-description {
+        color: #888;
+        font-size: 12px;
+        margin-bottom: 20px;
+    }
+    .toggle-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .popup, .popup-warning, .popup-add {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .popup.show, .popup-warning.show, .popup-add.show {
+        display: block;
+    }
+    .popup-header, .popup-warning-header, .popup-add-header {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .popup input, .popup-add input {
+        width: 100%;
+        padding: 10px 0 10px 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .popup-buttons, .popup-warning-buttons, .popup-add-buttons {
+        display: flex;
+        justify-content: space-between;
+    }
+    .popup-buttons button, .popup-warning-buttons button, .popup-add-buttons button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .popup-buttons .save-button, .popup-add-buttons .save-button {
+        background-color: #007bff;
+        color: #fff;
+    }
+    .popup-buttons .close-button, .popup-add-buttons .close-button {
+        background-color: #ddd;
+    }
+    .popup-warning-buttons .confirm-button {
+        background-color: #ff0000;
+        color: #fff;
+    }
+    .popup-warning-buttons .cancel-button {
+        background-color: #ddd;
+    }
+
   </style>
 </head>
 <body>
@@ -466,83 +730,364 @@
           <i class="fas fa-user">
           </i>
       </a>
+      <a>
+          <i class="fas fa-heart">
+          </i>
+      </a>
   </div>
   <div id="sidebar" class="sidebar"></div>
   <div id="chat"></div>
 
+
+  <div id="notification-container" class="notification hidden">
+      <div class="notification-avatar">
+          <img id="notification-avatar" src="" alt="Avatar">
+      </div>
+      <div class="notification-content">
+          <h4 class="notification-title">Thông báo</h4>
+          <p id="notification-message">Bạn có tin nhắn mới</p>
+      </div>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="closePopup(event)"></div>
+
+  <div class="popupAddGroup" id="newMessagePopup" style="display: none;">
+      <div class="header">
+          <h2>New message</h2>
+          <span class="close" id="closePopup" onclick="closePopup()">&times;</span>
+      </div>
+      <div class="tags">
+          <input type="text" class="search" oninput="debounceSearch(event)" placeholder="Search...">
+      </div>
+      <div class="content">
+          <div id="friendList" class="user-list">
+              <p>No account found.</p>
+          </div>
+      </div>
+      <div class="footer">
+          <button id="chatButton" onclick="onChatButtonClick()" disabled>Chat</button>
+      </div>
+  </div>
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
+  <script th:inline="javascript">
       let stompClient;
       let chatId = null;
-      let loginUserId = null;
+      let loginUserId = /*[[${userLogin}]]*/ 'defaultUser';
       let timeout;
-    $(document).ready(function() {
-      $.ajax({
-        url: '/chat/PartialChatListFriend',
-        type: 'GET',
-        success: function(response) {
-          $('#sidebar').html(response);
-        },
-        error: function(xhr, status, error) {
-          console.error('AJAX Error:', error);
-          alert('Không thể tải bạn bè.');
-        }
-      });
-      loadMessages(null);
-      connectToWebSocket();
+      let timeOutSecond;
+      let userName = "";
+      let fullName =  /*[[${fullName}]]*/ 'defaultUser';
+
+
+      $(document).ready(function() {
+        fetchFriendsSearchMainWithAjax("")
+       loadMessages(null);
+       connectToWebSocket();
+
     });
 
+      function subscribeChat() {
+          /*<![CDATA[*/
+          let items = [[${friends}]];
+          let groups = [[${chatGroups}]];
+          items.forEach(function(item) {
+              stompClient.subscribe('/topic/chat/'+ item.chatId, (message) => {
+                  const chatMessage = JSON.parse(message.body);
+                  console.log("Received message: ", chatMessage);
+
+                  //Neu dang trong boxchat thi cap nhap da doc tin nhan
+                  if(chatMessage.chatId == chatId && chatMessage.senderId != [[${userLogin}]]){
+                      updateIsRead(chatMessage.chatId, [[${userLogin}]]);
+                  }
+                  //render lai danh sach ban be de hien tin nhan moi nhat
+                  fetchFriendsSearchMainWithAjax(/*[[${oldChat}]]*/ '');
+                  displayMessage(chatMessage, false);
+
+              });
+          });
+          groups.forEach(function(item) {
+              stompClient.subscribe('/topic/chat/'+ item.chatId, (message) => {
+                  const chatMessage = JSON.parse(message.body);
+                  displayMessage(chatMessage, true);
+                  fetchFriendsSearchMainWithAjax(/*[[${oldChat}]]*/ '');
+
+              });
+              stompClient.subscribe('/topic/groups/'+ item.chatId, function (message) {
+                  const chatMessage = JSON.parse(message.body);
+                  if(chatMessage.senderId !== loginUserId){
+
+                      if(chatMessage.type === "MESSAGE"){
+
+                      }
+                      if(chatMessage.type === "RENAME_GROUP") {
+                          changeGroupName(chatMessage);
+                      }
+                      if(chatMessage.type === "REMOVE_MEMBER") {
+                          changeGroupRemoveMember(chatMessage);
+                      }
+                      if(chatMessage.type === "LEAVE_GROUP") {
+                          //Ẩn nút gửi tin nhắn và không thao tác các nút
+                      }
+                      if(chatMessage.type === "DELETE_GROUP") {
+                          //Ẩn nút gửi tin nhắn và không thao tác các nút
+                      }
+                      if(chatMessage.type === "ADD_MEMBER") {
+                          //Hiển thị thông báo thêm thành viên
+                      }
+                      showNotification('https://via.placeholder.com/50', chatMessage.content);
+                      fetchFriendsSearchMainWithAjax(/*[[${oldChat}]]*/ '');
+                  }
+              });
+          });
+          stompClient.subscribe('/user/queue/notifications', function (message) {
+              const chatMessage = JSON.parse(message.body);
+
+              if(chatMessage.type === "ADD_MEMBER"){
+                  fetchFriendsSearchMainWithAjax(/*[[${oldChat}]]*/ '');
+              }
+              showNotification('https://via.placeholder.com/50', chatMessage.content);
+          });
+
+          /*]]>*/
+      }
+
+      const debounceSearch = debounce((event) => {
+          const input = event.target.value;
+          fetchFriendsWithAjax(input);
+      }, 1000);
+
+      const debounceSearchMain = debounceMain((event) => {
+          const input = event.target.value;
+          fetchFriendsSearchMainWithAjax(input);
+      }, 1000);
+
+      function changeGroupName(messages){
+            const chatName = document.querySelector(".chat .header .info .name");
+            const profile_name = document.querySelector(".profile-header-name");
+            if(chatName){
+                chatName.innerText = messages.attr1;
+            }
+            if(profile_name) {
+                profile_name.innerText = messages.attr1;
+            }
+      }
+      function changeGroupRemoveMember(messages){
+            // ẩn phần input gửi tin nhắn
+          const message_input = document.querySelector(".message-input");
+            if(message_input){
+                message_input.style.display = "none";
+            }
+      }
 
 
-    function connectToWebSocket() {
-      const socket = new SockJS('/chat');
-      stompClient = Stomp.over(socket);
+      function updateIsRead(chatId, senderId) {
+          $.ajax({
+              url: '/messages/updateIsRead',
+              type: 'POST',
+              data: { chatId: chatId, senderId: senderId },
+              success: function(response) {
+                  console.log(response);
+                  fetchFriendsSearchMainWithAjax(/*[[${oldChat}]]*/ '');
+              },
+              error: function(xhr, status, error) {
+                  console.error('AJAX Error:', error);
+              }
+          });
+      }
 
-      stompClient.connect({}, () => {
-        console.log("Connected to WebSocket");
-      });
+      function connectToWebSocket() {
+          const socket = new SockJS('/chat');
+          stompClient = Stomp.over(socket);
+          stompClient.connect({}, () => {
+
+              subscribeChat();
+
+              console.log("Connected to WebSocket");
+          });
+
     }
 
+    function renameGroup(newName) {
+          $.ajax({
+              url: '/chat/changeGroupName',
+              type: 'POST',
+              data: { chatId: chatId, newGroupName: newName },
+              success: function (response) {
+                  if(response.errorCode === '0'){
+                      const content = newName;
+                      const type = "RENAME_GROUP";
+                      const message = { chatId, content, senderId : loginUserId , fullName, type};
+                      stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
+                      closePopup_Details();
+                  }else{
+                      alert(response.message);
+                  }
+              },
+              error: function () {
+                  alert("Lỗi khi đổi tên nhóm");
+              }
+          });
+      }
+
+      function removeMember(userId) {
+          $.ajax({
+              url: '/chat/removeMember',
+              type: 'POST',
+              data: { chatId: chatId, userId: userId },
+              success: function (response) {
+                  if(response.errorCode === '0'){
+                      const content = fullName;
+                      const type = "REMOVE_MEMBER";
+                      const message = { chatId, content, senderId : loginUserId , fullName, type ,attr1: userId};
+                      stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
+                  }else{
+                      alert(response.message);
+                  }
+              },
+              error: function () {
+                  alert("Lỗi khi xóa thành viên");
+              }
+          });
+      }
+
+      function leaveGroup() {
+          $.ajax({
+              url: '/chat/leaveGroup',
+              type: 'POST',
+              data: { chatId: chatId, userId: loginUserId },
+              success: function (response) {
+                  if(response.errorCode === '0'){
+                      const content = "";
+                      const type = "LEAVE_GROUP";
+                      const message = { chatId, content, senderId : loginUserId , fullName, type};
+                      stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
+                      changeGroupRemoveMember();
+                  }else{
+                      alert(response.message);
+                  }
+              },
+              error: function () {
+                  alert("Lỗi rời nhóm nhóm");
+              }
+          });
+          closeWarningPopup();
+      }
+
+      function deleteChat() {
+          $.ajax({
+              url: '/chat/deleteChat',
+              type: 'POST',
+              data: { chatId: chatId, userId: loginUserId },
+              success: function (response) {
+                  if(response.errorCode === '0'){
+                      const content = "";
+                      const type = "DELETE_GROUP";
+                      const message = { chatId, content, senderId : loginUserId , fullName, type};
+                      stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
+                  }else{
+                      alert(response.message);
+                  }
+              },
+              error: function () {
+                  alert("Lỗi xóa nhóm");
+              }
+          });
+          closeWarningPopup();
+      }
+      function addMember(userName) {
+          $.ajax({
+              url: '/chat/addMember',
+              type: 'POST',
+              data: { chatId: chatId, userName: userName },
+              success: function (response) {
+                  if(response.errorCode === '0'){
+                      const content = "";
+                      const type = "ADD_MEMBER";
+                      const attr1 = userName;
+                      const message = { chatId, content, senderId : loginUserId , fullName, type, attr1};
+                      stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
+                      stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+
+                  }else{
+                      alert(response.message);
+                  }
+              },
+              error: function () {
+                  alert("Lỗi khi thêm thành viên vào nhóm");
+              }
+          });
+      }
 
     // Gửi tin nhắn
     function sendMessage() {
-        loginUserId = Number(document.querySelector("#loginId").getAttribute('data-loginId'))
-
         const content = document.getElementById("message-input").value;
         if (content.trim() === "") return;
         const senderId = loginUserId;
-        const message = { chatId, senderId , content };
+        const fullName =  /*[[${fullName}]]*/ 'defaultUser';
+        const type = "MESSAGE";
+        const message = { chatId, senderId , content , fullName, type};
+
         stompClient.send("/app/send-message/" + chatId, {}, JSON.stringify(message));
-        document.getElementById("message-input").value = ""; // Xóa nội dung input
+        stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
+        stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+        document.getElementById("message-input").value = "";
     }
 
     // Hàm hiển thị tin nhắn trong giao diện
-    function displayMessage(chatMessage) {
-        loginUserId = Number(document.querySelector("#loginId").getAttribute('data-loginId'))
+    function displayMessage(chatMessage, isGroup) {
       let chatBox = document.getElementById("messages");
       const newMessage = document.createElement("div");
       if(chatMessage.senderId === loginUserId){
           newMessage.classList.add("message", "sent");
-          newMessage.innerHTML = `<div class="text">${chatMessage.content}</div>`;
-      }
-      else{
-          newMessage.classList.add("message");
-          newMessage.innerHTML = `
-              <img alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/wDG5C9sCdXLRHpPFzUHJkkeD8ZhLWw9u5D6ea6MEDEchUy4TA.jpg" width="40"/>
-             <div class="text">
-                ${chatMessage.content}
+          newMessage.innerHTML = `<div class="chat-content">
+                <div class="chat-message">
+                    <div class="text">${chatMessage.content}</div>
+                </div>
             </div>`;
 
       }
-      chatBox.appendChild(newMessage);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      else{
+          newMessage.classList.add("message");
+          if(isGroup){
+              newMessage.innerHTML = `
+            <img class="chat-image" alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/wDG5C9sCdXLRHpPFzUHJkkeD8ZhLWw9u5D6ea6MEDEchUy4TA.jpg" width="40"/>
+            <div class="chat-content">
+                <div class="chat-username">
+                    <span>${chatMessage.fullName}</span>
+                </div>
+                <div class="chat-message">
+                    <div class="text">${chatMessage.content}</div>
+                </div>
+            </div>
+          `
+          }
+          else{
+              newMessage.innerHTML = `
+            <img class="chat-image" alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/wDG5C9sCdXLRHpPFzUHJkkeD8ZhLWw9u5D6ea6MEDEchUy4TA.jpg" width="40"/>
+            <div class="chat-content">
+                <div class="chat-message">
+                    <div class="text">${chatMessage.content}</div>
+                </div>
+            </div>
+          `
+          }
+
+      }
+      if(chatBox != null){
+          chatBox.appendChild(newMessage);
+          chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
     }
+
 
     function loadMessages(element) {
       var userId = null;
       if(element != null){
           chatId = element.getAttribute('data-chatId');
           userId = element.getAttribute('data-userid2') ?? "0";
+          userName = element.getAttribute('data-usernameId2') ?? "";
       }
       $.ajax({
         url: '/chat/PartialChatMessageFriend',
@@ -551,15 +1096,11 @@
         data: { userId: userId , chatId: chatId},
         success: function(response) {
             $('#chat').html(response);
-            if(element != null){
-                stompClient.subscribe('/topic/chat/'+ chatId, (message) => {
-                    const chatMessage = JSON.parse(message.body);
-                    console.log("Received message: ", chatMessage);
-
-                    displayMessage(chatMessage);
-                });
+            let chatBox = document.getElementById("messages");
+            if(chatBox != null){
+                chatBox.scrollTop = chatBox.scrollHeight;
             }
-
+            fetchFriendsSearchMainWithAjax(/*[[${oldChat}]]*/ '');
         },
         error: function(xhr, status, error) {
           console.error('AJAX Error:', error);
@@ -593,12 +1134,19 @@
             overlay.style.display = 'none';
         }
     }
+
     function debounce(func, delay) {
           return function (...args) {
               clearTimeout(timeout);
               timeout = setTimeout(() => func.apply(this, args), delay);
           };
     }
+      function debounceMain(func, delay) {
+          return function (...args) {
+              clearTimeout(timeOutSecond);
+              timeOutSecond = setTimeout(() => func.apply(this, args), delay);
+          };
+      }
     function fetchFriendsWithAjax(name) {
       if (!name) {
           $("#friendList").empty();
@@ -618,7 +1166,7 @@
                         ${friend.fullName}
                       </h2>
                       <p>
-                        quangsonnnn
+                        ${friend.username}
                       </p>
                     </div>
                     <div class="select">
@@ -633,10 +1181,24 @@
           }
       });
     }
-      const debounceSearch = debounce((event) => {
-          const input = event.target.value;
-          fetchFriendsWithAjax(input);
-      }, 1000);
+
+      function fetchFriendsSearchMainWithAjax(name) {
+          $.ajax({
+              url: '/chat/PartialChatListFriend',
+              type: 'GET',
+              data: { name: name},
+              success: function(response) {
+                  $('#sidebar').html(response);
+              },
+              error: function(xhr, status, error) {
+                  console.error('AJAX Error:', error);
+                  alert('Không thể tải bạn bè.');
+              }
+          });
+      }
+
+
+
 
       function selectUser(event) {
           const userItem = event.currentTarget;
@@ -703,16 +1265,15 @@
                   method: 'POST',
                   data: { userIds: selectedUserIds },
                   success: function(response) {
-                      console.log(response)
                       if (response.errorCode !== '0') {
                           alert(`${response.message}`);
                       } else {
-                          console.log('Group chat created:', response);
                           alert('Nhóm chat đã được tạo.');
+                          fetchFriendsSearchMainWithAjax(/*[[${oldChat}]]*/ '');
+                          closePopup();
                       }
                   },
                   error: function(xhr, status, error) {
-                      console.error('Error creating group chat:', error);
                       alert('Không thể tạo nhóm chat.');
                   }
               });
@@ -720,6 +1281,113 @@
               console.log('No users selected');
           }
       }
+
+      function showNotification(avatarUrl, message) {
+          const notification = document.getElementById('notification-container');
+          const notificationAvatar = document.getElementById('notification-avatar');
+          const notificationMessage = document.getElementById('notification-message');
+
+          // Set avatar and message
+          notificationAvatar.src = avatarUrl;
+          notificationMessage.textContent = message;
+
+          // Show notification
+          notification.classList.remove('hidden');
+
+          // Hide notification after 3 seconds
+          setTimeout(() => {
+              notification.classList.add('hidden');
+          }, 3000);
+      }
+
+      function toggleDetails() {
+          var container = document.getElementById('detailsContainer');
+          container.classList.toggle('show');
+      }
+
+      function showPopup_Details() {
+          var popup = document.getElementById('popup');
+          popup.classList.add('show');
+      }
+
+      function closePopup_Details() {
+          var popup = document.getElementById('popup');
+          popup.classList.remove('show');
+      }
+
+      function saveGroupName() {
+          var newGroupName = document.getElementById('newGroupName').value;
+          if (newGroupName) {
+              renameGroup(newGroupName);
+          } else {
+              alert('Please enter a new group name.');
+          }
+      }
+
+
+      let action = "leave";
+      function showWarningPopup(action) {
+          var popupWarning = document.getElementById('popupWarning');
+          var popupWarningHeader = document.getElementById('popupWarningHeader');
+          if (action === 'leave') {
+              action = "leave";
+              popupWarningHeader.innerText = 'Are you sure you want to leave the chat?';
+          } else if (action === 'delete') {
+              popupWarningHeader.innerText = 'Are you sure you want to delete the chat?';
+              action = "delete";
+          }
+          popupWarning.classList.add('show');
+      }
+
+      function closeWarningPopup() {
+          var popupWarning = document.getElementById('popupWarning');
+          popupWarning.classList.remove('show');
+      }
+
+      function confirmAction() {
+          if(action === "delete"){
+                deleteChat();
+          }else if(action === "leave"){
+                leaveGroup();
+          }else{
+              alert("Lỗi")
+          }
+          closeWarningPopup();
+      }
+
+      function showAddPopup() {
+          var popupAdd = document.getElementById('popupAdd');
+          popupAdd.classList.add('show');
+      }
+
+      function closeAddPopup() {
+          var popupAdd = document.getElementById('popupAdd');
+          popupAdd.classList.remove('show');
+      }
+
+      function addUser() {
+          let newUserName = document.getElementById('newUserName').value;
+          if (newUserName) {
+              addMember(newUserName);
+              closeAddPopup();
+          } else {
+              alert('Please enter a username.');
+          }
+      }
+
+      function toggleRemoveMember(element) {
+          let allRemoveMemberElements = document.querySelectorAll('.remove-member');
+          allRemoveMemberElements.forEach(function(el) {
+              if (el !== element.querySelector('.remove-member')) {
+                  el.classList.remove('show');
+              }
+          });
+          let removeMember = element.querySelector('.remove-member');
+          removeMember.classList.toggle('show');
+      }
+
+
+
 
   </script>
 </body>

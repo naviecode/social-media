@@ -1,10 +1,12 @@
-package com.project.social_media.models;
+package com.project.social_media.dto;
 
-public class ChatMessage {
+public class NotificationsDto {
     private Long chatId;
     private Long senderId;
     private String fullName;
     private String content;
+    private String type;
+    public String attr1;
 
     public Long getChatId() {
         return chatId;
@@ -35,6 +37,16 @@ public class ChatMessage {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-
-
+    public String getType() {
+        return type;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
+    public String getAttr1() {
+        return attr1;
+    }
+    public void setAttr1(String attr1) {
+        this.attr1 = attr1;
+    }
 }

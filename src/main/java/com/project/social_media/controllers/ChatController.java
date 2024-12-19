@@ -1,9 +1,10 @@
 package com.project.social_media.controllers;
 
 
-import com.project.social_media.Authorize.JwtUtils;
 import com.project.social_media.constants.ErrorCodes;
+import com.project.social_media.dto.ChatGroupWithUnreadCountDto;
 import com.project.social_media.dto.FriendWithUsernameDto;
+import com.project.social_media.dto.MessageWithSenderNameDto;
 import com.project.social_media.models.*;
 import com.project.social_media.services.*;
 import com.project.social_media.utils.SecurityUtils;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -24,16 +26,10 @@ public class ChatController {
     private ChatMessageService chatMesageService;
 
     @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
     private FriendService friendService;
-
-    @Autowired
-    private ChatMemberService chatMemberService;
 
     @Autowired
     private MessagesService messagesService;
@@ -41,33 +37,48 @@ public class ChatController {
     @Autowired
     private ChatService chatService;
 
+    @Autowired
+    private ChatMemberService chatMemberService;
+
+
     @GetMapping
     public String chat(Model model)
     {
+        Long userId = SecurityUtils.getLoggedInUserId();
+        Users user = userService.getUserById(userId).getData();
+        List<FriendWithUsernameDto> lstFriends = friendService.getFriendsWithUsernameByUserId1(userId, "").getData();
+        List<ChatGroupWithUnreadCountDto> chatGroups = chatService.getChatGroupsByUserId(userId).getData();
+
+
+        model.addAttribute("friends", lstFriends);
+        model.addAttribute("chatGroups", chatGroups);
+        model.addAttribute("userLogin", userId);
+        model.addAttribute("fullName", user.getFullName());
+
         return "chat/chatview";
     }
 
     @MessageMapping("/send-message/{chatId}")
     @SendTo("/topic/chat/{chatId}")
     public ChatMessage sendMessage(ChatMessage message) {
-        //Kiểm tra coi đúng 2 userId ở cùng nhóm chát không
-
         // Logic lưu tin nhắn vào database
         ResponseServiceEntity<ChatMessage> result = chatMesageService.saveMessages(message);
         return result.getData();
     }
 
+
+
     @GetMapping("/PartialChatListFriend")
-    public String PartialChatListFriend(Model model){
+    public String PartialChatListFriend(@RequestParam("name") String name, Model model){
         Long userId = SecurityUtils.getLoggedInUserId();
         Users user = userService.getUserById(userId).getData();
-        List<FriendWithUsernameDto> lstFriends = friendService.getFriendsWithUsernameByUserId1(userId).getData();
-        List<Chats> chatGroups = chatService.getChatGroupsByUserId(userId).getData();
-
+        List<FriendWithUsernameDto> lstFriends = friendService.getFriendsWithUsernameByUserId1(userId, name).getData();
+        List<ChatGroupWithUnreadCountDto> chatGroups = chatService.getChatGroupsByUserId(userId).getData();
 
         model.addAttribute("fullName", user.getFullName());
         model.addAttribute("friends", lstFriends);
         model.addAttribute("chatGroups", chatGroups);
+        model.addAttribute("oldChat", name);
         return "partial/chat_list_friend";
     }
 
@@ -76,7 +87,7 @@ public class ChatController {
                                            @RequestParam("chatId") String chatId,
                                            Model model){
         Long userId_1_Long = SecurityUtils.getLoggedInUserId();
-
+        List<Users> lstMembmer = new ArrayList<Users>();
         if(chatId == null || chatId.isEmpty()){
             return "partial/chat_message_friend_empty";
         }
@@ -86,23 +97,26 @@ public class ChatController {
         }
         Long chatId_Long = Long.parseLong(chatId);
         Boolean isGroup = chat.getIsGroupChat();
-        //Nếu là group chat
+        //Nếu là chat 1 - 1
         if(!chat.getIsGroupChat()){
-            //Nếu là chat 1-1
             Long userId_2_Long = Long.parseLong(userId);
-            //Get info userFriend
             Users friend = userService.getUserById(userId_2_Long).getData();
             model.addAttribute("chatName", friend.getFullName());
+            messagesService.markMessagesAsReadByChatIdAndSenderId(chatId_Long, userId_1_Long);
+            lstMembmer.add(friend);
+
         }
         else{
+            lstMembmer.addAll(chatMemberService.getUsersByChatId(chatId_Long,userId_1_Long).getData());
             model.addAttribute("chatName", chat.getGroupName());
         }
+
         model.addAttribute("isGroup", isGroup);
         model.addAttribute("userIdLogin", userId_1_Long);
         model.addAttribute("chatId", chatId_Long);
-        //Get messages
-        List<Messages> messages = messagesService.GetAllMessagesByChatId(chatId_Long).getData();
+        List<MessageWithSenderNameDto> messages = messagesService.GetAllMessagesByChatId(chatId_Long).getData();
         model.addAttribute("messageList", messages);
+        model.addAttribute("members", lstMembmer);
 
 
         return "partial/chat_message_friend";
@@ -115,6 +129,36 @@ public class ChatController {
         userIds.add(SecurityUtils.getLoggedInUserId());
         ResponseServiceEntity<Long> result = chatService.createGroupChat(userIds);
         return result;
+    }
+
+    @PostMapping("/changeGroupName")
+    @ResponseBody
+    public ResponseServiceEntity<String> changeGroupName(@RequestParam("chatId") Long chatId, @RequestParam("newGroupName") String newGroupName) {
+        return chatService.changeGroupName(chatId, newGroupName);
+    }
+
+    @PostMapping("/removeMember")
+    @ResponseBody
+    public ResponseServiceEntity<String> removeMember(@RequestParam("chatId") Long chatId, @RequestParam("userId") Long userId) {
+        return chatService.removeMember(chatId, userId);
+    }
+
+    @PostMapping("/leaveGroup")
+    @ResponseBody
+    public ResponseServiceEntity<String> leaveGroup(@RequestParam("chatId") Long chatId, @RequestParam("userId") Long userId) {
+        return chatService.leaveGroup(chatId, userId);
+    }
+
+    @PostMapping("/deleteChat")
+    @ResponseBody
+    public ResponseServiceEntity<String> deleteChat(@RequestParam("chatId") Long chatId, @RequestParam("userId") Long userId) {
+        return chatService.deleteChat(chatId, userId);
+    }
+
+    @PostMapping("/addMember")
+    @ResponseBody
+    public ResponseServiceEntity<String> addMember(@RequestParam("chatId") Long chatId, @RequestParam("userName") String userName) {
+        return chatService.addMember(chatId, userName);
     }
 
 }
