@@ -5,24 +5,26 @@
         </span>
     </div>
     <div class="icons">
-        <i class="fas fa-sticky-note">
-        </i>
-        <i class="fas fa-edit">
-        </i>
+        <a onclick="showPopup(event)">
+            <i class="fas fa-edit" >
+            </i>
+        </a>
+
     </div>
 </div>
 <div class="search">
-    <input placeholder="Search" type="text"/>
+    <input placeholder="Search" oninput="debounceSearchMain(event)" th:value="${oldChat}" type="text"/>
 </div>
 
 <div class="contacts" >
     <div class="contracts_wrap" th:each="friend : ${friends}">
-        <div class="contact"  th:attr="data-userid2=${friend.getUserId2()}, data-chatId=${friend.getChatId()}" onclick="loadMessages(this)">
+        <div class="contact " th:classappend="${friend.getUnreadMessagesCount() > 0 ? 'highlight' : ''}"  th:attr="data-userid2=${friend.getUserId2()}, data-chatId=${friend.getChatId()}, data-usernameId2=${friend.getUsername()}" onclick="loadMessages(this)">
             <img alt="Contact profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/QAKh95Hre928MCQwECa4JOXelifSxGBvudTvdJHqMMxFpkxnA.jpg" width="40"/>
             <div class="info">
                 <div class="name" th:text="${friend.getFullName()}">
                 </div>
-                <div class="status">
+                <div th:if="${friend.getUnreadMessagesCount() > 0}" class="status" th:text="|Bạn đang có ${friend.getUnreadMessagesCount()} tin nhắn chưa đọc|"></div>
+                <div th:if="${friend.getUnreadMessagesCount() < 0 }">
                     Active 2m ago
                 </div>
             </div>
@@ -32,14 +34,16 @@
 
 <div class="contacts">
     <div class="contracts_wrap" th:each="group : ${chatGroups}">
-        <div class="contact" th:attr="data-chatId=${group.getChatId()}" onclick="loadMessages(this)">
+        <div class="contact" th:classappend="${group.getUnreadMessagesCount() > 0 ? 'highlight' : ''}" th:attr="data-chatId=${group.getChatId()}" onclick="loadMessages(this)">
             <img alt="Contact profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/QAKh95Hre928MCQwECa4JOXelifSxGBvudTvdJHqMMxFpkxnA.jpg" width="40"/>
             <div class="info">
                 <div class="name" th:text="${group.getGroupName()}">
                 </div>
-                <div class="status">
+                <div th:if="${group.getUnreadMessagesCount() > 0}" class="status" th:text="|Bạn đang có ${group.getUnreadMessagesCount()} tin nhắn chưa đọc|"></div>
+                <div th:if="${group.getUnreadMessagesCount() < 0}" class="status">
                     Group chat
                 </div>
             </div>
+        </div>
     </div>
 </div>

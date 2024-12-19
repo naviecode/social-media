@@ -15,13 +15,13 @@ public class FriendService {
     @Autowired
     private FriendsRepository friendsRepository;
 
-    public ResponseServiceListEntity<Friends> getFriendsByUserId(Long userId) {
-        List<Friends> result =  friendsRepository.findByUserId1(userId);
+    public ResponseServiceListEntity<FriendWithUsernameDto> getFriendsByUserId(Long userId) {
+        List<FriendWithUsernameDto> result =  friendsRepository.findByUserId1(userId);
         return ResponseServiceListEntity.success(result, result.stream().count(), ErrorCodes.SUCCESS);
     }
 
-    public ResponseServiceListEntity<FriendWithUsernameDto> getFriendsWithUsernameByUserId1(Long userId) {
-        List<FriendWithUsernameDto> result = friendsRepository.findFriendsWithUsernameByUserId1(userId);
+    public ResponseServiceListEntity<FriendWithUsernameDto> getFriendsWithUsernameByUserId1(Long userId, String name) {
+        List<FriendWithUsernameDto> result = friendsRepository.findFriendsWithUsernameByUserId1(userId, name);
         return ResponseServiceListEntity.success(result, result.stream().count(), ErrorCodes.SUCCESS);
     }
 
