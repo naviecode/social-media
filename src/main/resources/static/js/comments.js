@@ -121,7 +121,6 @@ function toggleLikeComment(commentId) {
 
 function addReplyInput(event) {
     const sanitizedFullName = userFullName.replace(/"/g, ''); // Removes all double quotes
-    document.querySelector('.name').innerHTML = sanitizedFullName;
     const comment = event.target.closest('.comment');
     const replyContainer = document.createElement('div');
     replyContainer.className = 'reply-input-container';
@@ -129,7 +128,7 @@ function addReplyInput(event) {
         <div class="align-center">
                     <img alt="User profile picture" height="40" src="${userAvatarUrl}" width="40">
                     <div class="comment-content" style="outline: rgb(0 0 0) dashed 2px;background-color: #ffffff;">
-                        <p class="name" style="">${sanitizedFullName}</p>
+                        <p class="my_comment_name" style="">${sanitizedFullName}</p>
                         <div class="footer">
                             <input placeholder="Viết bình luận..." type="text" style="" onkeypress="handleReplyKeyPress(event, ${comment.dataset.commentId})">
                         </div>

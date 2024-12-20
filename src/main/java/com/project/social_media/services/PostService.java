@@ -176,4 +176,51 @@ public class PostService {
                 isLiked
         );
     }
+
+    @Transactional
+    public List<PostDTO> getUserPosts(Long userId, Long loggedInUserId, int page, int size) {
+        Page<Posts> postPage;
+        if (userId.equals(loggedInUserId)) {
+            postPage = postsRepository.findAllByUser_UserId(userId, PageRequest.of(page, size));
+        } else if (friendsRepository.existsByUserId1AndUserId2(loggedInUserId, userId)) {
+            postPage = postsRepository.findByUser_UserIdAndPrivacyIn(userId, List.of(Posts.Privacy.FRIENDS, Posts.Privacy.PUBLIC), PageRequest.of(page, size));
+        } else {
+            postPage = postsRepository.findByUser_UserIdAndPrivacy(userId, Posts.Privacy.PUBLIC, PageRequest.of(page, size));
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<Posts> posts = postPage.getContent();
+
+        var postDTOs = posts.stream().map(post -> {
+            Users user = post.getUser();
+            List<byte[]> imagesData = postImagesRepository.findByPost(post).stream()
+                    .map(PostImages::getImageData)
+                    .collect(Collectors.toList());
+            long reactionCount = reactionsRepository.countByPost(post);
+            long commentCount = commentsRepository.countByPost(post);
+
+            // Check if the post is liked by the current user
+            boolean isLiked = reactionsRepository.existsByPostAndUserId(post, userId);
+
+            // Get the current user's avatar URL
+            Users currentUser = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            String currentUserAvatarUrl = currentUser.getAvatarURL();
+
+            return new PostDTO(
+                    post.getPostId(),
+                    post.getContent(),
+                    post.getPrivacy(),
+                    currentUserAvatarUrl,
+                    post.getCreatedAt(),
+                    reactionCount,
+                    commentCount,
+                    imagesData,
+                    user.getFullName(),
+                    user.getAvatarURL(),
+                    isLiked
+            );
+        }).collect(Collectors.toList());
+
+        return postDTOs;
+    }
 }
