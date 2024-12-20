@@ -32,14 +32,7 @@ public class UserController {
     public String getUserInfo(@PathVariable("userId") Long userId, Model model) {
         UserInfoDto user = userService.getUserInfo(userId).getData();
         Long userLogin = SecurityUtils.getLoggedInUserId();
-
-//        model.addAttribute("areFriends", friendService.areFriends(userLogin, userId).getData());
-//        String statusFriend = friendService.getFriendStatus(userId, userLogin).getData();
-//        String existStatus = friendService.getFriendStatus(userLogin, userId).getData();
-//        model.addAttribute("statusFriend", statusFriend);
-//        model.addAttribute("existStatus", existStatus);
         model.addAttribute("userLogin", userLogin);
-//        model.addAttribute("userId", userId);
         model.addAttribute("userName", user.getUsername());
         model.addAttribute("notifications", notificationsService.getNotificationsByUserId(userLogin));
 

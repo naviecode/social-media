@@ -256,7 +256,7 @@
             max-width: 400px;
             height: 100%;
             background-color: #fff;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            box-shadow: 2px 0 5px rgb(0 0 0 / 8%);
             transition: left 0.3s ease;
             padding: 20px;
             overflow-y: auto;
@@ -459,13 +459,6 @@
                 </a>
             </li>
             <li>
-                <a href="#">
-                    <i class="fas fa-plus-square">
-                    </i>
-                    Create
-                </a>
-            </li>
-            <li>
                 <a th:href="@{/user/{userLogin}(userLogin=${userLogin})}">
                     <i class="fas fa-user"></i>
                     Profile
@@ -564,7 +557,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
