@@ -63,12 +63,19 @@ public class PostController {
     }
 
     @MessageMapping("/update-reaction/{postId}")
-    @SendTo("/topic/update-reaction")
+    @SendTo("/topic/update-reaction/{postId}")
     public PostDTO updateReaction(ReactionDTO reactionDTO) {
         if (!reactionDTO.isLiked()) {
             return postService.likePost(reactionDTO.getPostId(), reactionDTO.getUserId());
         } else {
             return postService.unlikePost(reactionDTO.getPostId(), reactionDTO.getUserId());
         }
+    }
+
+    @GetMapping("/user-posts")
+    @ResponseBody
+    public List<PostDTO> getUserPosts(@RequestParam Long userId, @RequestParam int page, @RequestParam int size) {
+        Long loggedInUserId = SecurityUtils.getLoggedInUserId();
+        return postService.getUserPosts(userId, loggedInUserId, page, size);
     }
 }

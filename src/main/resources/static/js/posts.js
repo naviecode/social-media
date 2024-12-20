@@ -3,6 +3,7 @@ const size = 10;
 let isLoading = false;
 let totalPostsLoaded = 0;
 let noMorePosts = false; // To track if we've reached the end of posts
+let stompClient;
 
 function loadPosts() {
     if (isLoading || noMorePosts) return; // Prevent duplicate loading
@@ -14,6 +15,36 @@ function loadPosts() {
         type: 'GET',
         data: { page: page, size: size },
         success: function(posts) {
+            const socket = new SockJS('/chat');
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, () => {
+                console.log("Connected to WebSocket");
+                posts.forEach(function(post) {
+                    stompClient.subscribe('/topic/update-reaction/' + post.postId, (message) => {
+                        const reactionUpdate = JSON.parse(message.body);
+                        const postElement = $(`.post[data-post-id="${reactionUpdate.postId}"]`);
+                        const reactionIcon = reactionUpdate.isLiked
+                            ? `<div id="reaction-icon" class="reaction-icon">
+                           <i class="fas fa-heart" style="color: red;"></i>
+                       </div>`
+                            : `<div id="reaction-icon" class="reaction-icon">
+                           <i class="far fa-heart"></i>
+                       </div>`;
+
+                        postElement.find('.reaction-icon').replaceWith(reactionIcon);
+                        postElement.find('.like-count').text(reactionUpdate.reactionCount);
+                    });
+                    stompClient.subscribe('/topic/send-comment/' + post.postId, (message) => {
+                        const newComment = JSON.parse(message.body);
+                        displayComment(newComment);
+
+                        const commentCountElement = document.querySelector(`.post[data-post-id="${newComment.postId}"] .comment-count`);
+                        commentCountElement.textContent = parseInt(commentCountElement.textContent) + 1;
+                    });
+                });
+            });
+
             const postContainer = $('#post-container');
 
             if (posts.length === 0) {
@@ -155,7 +186,6 @@ $(window).on('scroll', function () {
 });
 
 $(document).ready(function() {
-    connectToWebSocket();
     loadPosts();
 });
 
@@ -204,41 +234,6 @@ $(window).on('scroll', function() {
     }
 });
 
-let stompClient;
-
-function connectToWebSocket() {
-    const socket = new SockJS('/chat');
-    stompClient = Stomp.over(socket);
-
-    stompClient.connect({}, () => {
-        console.log("Connected to WebSocket");
-
-        stompClient.subscribe('/topic/update-reaction', (message) => {
-            const reactionUpdate = JSON.parse(message.body);
-            const postElement = $(`.post[data-post-id="${reactionUpdate.postId}"]`);
-            const reactionIcon = reactionUpdate.isLiked
-                ? `<div id="reaction-icon" class="reaction-icon">
-                       <i class="fas fa-heart" style="color: red;"></i>
-                   </div>`
-                : `<div id="reaction-icon" class="reaction-icon">
-                       <i class="far fa-heart"></i>
-                   </div>`;
-
-            postElement.find('.reaction-icon').replaceWith(reactionIcon);
-            postElement.find('.like-count').text(reactionUpdate.reactionCount);
-        });
-
-        // Subscribe to comments for each post
-        $('.post').each(function() {
-            const postId = $(this).data('post-id');
-            stompClient.subscribe('/topic/comments/' + postId, (message) => {
-                const comment = JSON.parse(message.body);
-                displayComment(comment);
-            });
-        });
-    });
-}
-
 $(document).on('click', '.reaction-icon', function() {
     const postElement = $(this).closest('.post');
     const postId = postElement.data('post-id');
@@ -279,14 +274,12 @@ function sendComment(postId) {
     const comment = { postId, userId, content, parentCommentId: null };
 
     stompClient.send(`/app/send-comment/${postId}`, {}, JSON.stringify(comment));
-    inputElement.value = ""; // Clear the input field
+    inputElement.value = "";
 
-    // Hiển thị thông báo
-    alert("Bình luận của bạn đã được đăng");
-
-    // Cập nhật số lượng bình luận
     const commentCountElement = document.querySelector(`.post[data-post-id="${postId}"] .comment-count`);
     commentCountElement.textContent = parseInt(commentCountElement.textContent) + 1;
+
+    alert("Your comment has been posted");
 }
 
 function displayComment(comment) {
