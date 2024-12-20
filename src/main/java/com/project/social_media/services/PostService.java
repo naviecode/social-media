@@ -1,0 +1,186 @@
+package com.project.social_media.services;
+
+import com.project.social_media.dto.PostDTO;
+import com.project.social_media.dto.ReactionDTO;
+import com.project.social_media.models.PostImages;
+import com.project.social_media.models.Posts;
+import com.project.social_media.models.Reactions;
+import com.project.social_media.models.Users;
+import com.project.social_media.repository.*;
+import com.project.social_media.utils.SecurityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+@Service
+public class PostService {
+
+    private static final Logger LOGGER = Logger.getLogger(PostService.class.getName());
+
+    @Autowired
+    private PostsRepository postsRepository;
+
+    @Autowired
+    private FriendsRepository friendsRepository;
+
+    @Autowired
+    private ReactionsRepository reactionsRepository;
+
+    @Autowired
+    private CommentsRepository commentsRepository;
+
+    @Autowired
+    private SharedPostsRepository sharedPostsRepository;
+
+    @Autowired
+    private PostImagesRepository postImagesRepository;
+
+    @Autowired
+    private UsersRepository usersRepository;
+
+    @Transactional
+    public void createPost(String content, Posts.Privacy privacy, List<byte[]> imagesData) {
+        try {
+            // Get the logged-in user
+            Long userId = SecurityUtils.getLoggedInUserId();
+            Users user = new Users();
+            user.setUserId(userId);
+
+            // Create a new post
+            Posts post = new Posts();
+            post.setUser(user);
+            post.setContent(content);
+            post.setPrivacy(privacy);
+            post.setCreatedAt(LocalDateTime.now());
+
+            // Save the post to the database
+            Posts savedPost = postsRepository.save(post);
+
+            // Save the images associated with the post
+            for (byte[] imageData : imagesData) {
+                PostImages postImage = new PostImages();
+                postImage.setPost(savedPost);
+                postImage.setImageData(imageData);
+                postImagesRepository.save(postImage);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating post", e);
+            throw e;
+        }
+    }
+
+    @Transactional
+    public List<PostDTO> getFriendAndOwnPosts(int page, int size) {
+        Long userId = SecurityUtils.getLoggedInUserId();
+        List<Long> friendIds = friendsRepository.findAcceptedFriendIds(userId);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Posts> postPage = postsRepository.findPostsByUserIdOrFriendIds(userId, friendIds, pageable);
+        List<Posts> posts = postPage.getContent();
+
+        var postDTOs = posts.stream().map(post -> {
+            Users user = post.getUser();
+            List<byte[]> imagesData = postImagesRepository.findByPost(post).stream()
+                    .map(PostImages::getImageData)
+                    .collect(Collectors.toList());
+            long reactionCount = reactionsRepository.countByPost(post);
+            long commentCount = commentsRepository.countByPost(post);
+            long shareCount = sharedPostsRepository.countByOriginalPost(post);
+
+            // Check if the post is liked by the current user
+            boolean isLiked = reactionsRepository.existsByPostAndUserId(post, userId);
+
+            // Get the current user's avatar URL
+            Users currentUser = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            String currentUserAvatarUrl = currentUser.getAvatarURL();
+
+            return new PostDTO(
+                    post.getPostId(),
+                    post.getContent(),
+                    post.getPrivacy(),
+                    currentUserAvatarUrl,
+                    post.getCreatedAt(),
+                    reactionCount,
+                    commentCount,
+                    shareCount,
+                    imagesData,
+                    user.getFullName(),
+                    user.getAvatarURL(),
+                    isLiked
+            );
+        }).collect(Collectors.toList());
+
+        return postDTOs;
+    }
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
+    @Transactional
+    public PostDTO likePost(Long postId, Long userId) {
+        Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Posts post = postsRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+
+        Reactions reaction = new Reactions(user, post, null);
+        reactionsRepository.save(reaction);
+
+        PostDTO postDTO = getPostDTO(post, userId);
+        messagingTemplate.convertAndSend("/topic/update-reaction", postDTO);
+        return postDTO;
+    }
+
+    @Transactional
+    public PostDTO unlikePost(Long postId, Long userId) {
+        Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Posts post = postsRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+
+        reactionsRepository.deleteByPostAndUserId(post, userId);
+
+        PostDTO postDTO = getPostDTO(post, userId);
+        messagingTemplate.convertAndSend("/topic/update-reaction", postDTO);
+        return postDTO;
+    }
+
+    private PostDTO getPostDTO(Posts post, Long userId) {
+        Users user = post.getUser();
+        List<byte[]> imagesData = postImagesRepository.findByPost(post).stream()
+                .map(PostImages::getImageData)
+                .collect(Collectors.toList());
+        long reactionCount = reactionsRepository.countByPost(post);
+        long commentCount = commentsRepository.countByPost(post);
+        long shareCount = sharedPostsRepository.countByOriginalPost(post);
+
+        boolean isLiked = reactionsRepository.existsByPostAndUserId(post, userId);
+
+        Users currentUser = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        String currentUserAvatarUrl = currentUser.getAvatarURL();
+
+        return new PostDTO(
+                post.getPostId(),
+                post.getContent(),
+                post.getPrivacy(),
+                currentUserAvatarUrl,
+                post.getCreatedAt(),
+                reactionCount,
+                commentCount,
+                shareCount,
+                imagesData,
+                user.getFullName(),
+                user.getAvatarURL(),
+                isLiked
+        );
+    }
+}

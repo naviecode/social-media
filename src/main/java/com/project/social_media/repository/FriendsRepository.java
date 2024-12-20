@@ -27,13 +27,14 @@ public interface FriendsRepository  extends JpaRepository<Friends, Long> {
             @Param("userId1") Long userId1,
             @Param("name") String name
     );
-
-    @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END " +
+  
+     @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END " +
             "FROM Friends f " +
             "WHERE ((f.userId1 = :userId1 AND f.userId2 = :userId2) " +
             "OR (f.userId1 = :userId2 AND f.userId2 = :userId1)) " +
             "AND f.status = 'accepted'")
     boolean isFriend(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
+
 
     @Query("SELECT new com.project.social_media.dto.FriendWithUsernameDto(f.friendId, f.userId1, f.userId2, f.status, u.fullName, cm.chatId, u.username, " +
         "(SELECT COUNT(m) FROM Messages m WHERE m.chatId = cm.chatId AND m.isRead = false AND m.senderId <> :userId1), " +
@@ -48,12 +49,15 @@ public interface FriendsRepository  extends JpaRepository<Friends, Long> {
         "ORDER BY (SELECT m.sentAt FROM Messages m WHERE m.chatId = cm.chatId ORDER BY m.sentAt DESC LIMIT 1) DESC")
     List<FriendWithUsernameDto> findFriendsWithUsernameByUserId1(@Param("userId1") Long userId1, @Param("name") String name);
 
+  
+    @Query("SELECT CASE WHEN f.userId1 = :userId THEN f.userId2 ELSE f.userId1 END FROM Friends f WHERE (f.userId1 = :userId OR f.userId2 = :userId) AND f.status = 'accepted'")
+    List<Long> findAcceptedFriendIds(Long userId);
+  
     @Query("SELECT COUNT(f) " +
             "FROM Friends f " +
             "WHERE f.status = 'accepted' AND " +
             "(f.userId1 = :userId)")
     long countByUserId(@Param("userId") Long userId);
-
 
     @Query("SELECT CASE WHEN COUNT(f) > 0 THEN TRUE ELSE FALSE END FROM Friends f WHERE f.userId1 = :userId1 AND f.userId2 = :userId2 AND f.status = 'pending'")
     boolean existsPendingFriendRequest(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
