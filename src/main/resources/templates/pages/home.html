@@ -9,12 +9,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
   <script th:inline="javascript">
     let userLoginId = '[[${userLogin}]]';
+    let userFullName = '[[${userLoginFullName}]]';
+    let userAvatarUrl = '[[${userLoginAvatarUrl}]]';
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="/static/js/posts.js"></script>
   <script src="/static/js/posting.js"></script>
+  <script src="/static/js/comments.js"></script>
   <style>
     body {
       font-family: 'Roboto', sans-serif;
@@ -245,6 +248,214 @@
       background-color: #ccc;
     }
 
+    #comment-popup-container {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 1000px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      box-sizing: border-box;
+    }
+
+    #comment-popup-container .header {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      position: relative;
+    }
+
+    #comment-popup-container .header .close-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+
+    #comment-popup-container .header::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 1px;
+      background-color: #d3d3d3;
+      margin-top: 10px;
+    }
+
+    #comment-popup-container .comments {
+      height: 950px; /* Set a fixed height */
+      overflow-y: auto; /* Enable vertical scrolling */
+    }
+
+    #comment-popup-container .comment {
+      display: flex;
+      margin-bottom: 10px;
+      position: relative;
+      flex-direction: column;
+    }
+
+    #comment-popup-container .comment img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    #comment-popup-container .comment-content {
+      background-color: #f0f2f5;
+      border-radius: 18px;
+      padding: 10px;
+      flex-grow: 1;
+      position: relative;
+    }
+
+    #comment-popup-container .comment-content p {
+      margin: 0;
+    }
+
+    #comment-popup-container .comment-content .name {
+      font-weight: bold;
+    }
+
+    #comment-popup-container .comment-content .time {
+      font-size: 12px;
+      color: #606770;
+    }
+
+    #comment-popup-container .comment-content .text {
+      margin-top: 5px;
+    }
+
+    #comment-popup-container .comment-content .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+    }
+
+    #comment-popup-container .comment-content .actions .left {
+      display: flex;
+      gap: 10px;
+    }
+
+    #comment-popup-container .comment-content .actions .right {
+      display: flex;
+      gap: 10px;
+    }
+
+    #comment-popup-container .comment-content .actions .action {
+      font-size: 12px;
+      color: #606770;
+      cursor: pointer;
+    }
+
+    #comment-popup-container .comment-content .actions .action:hover {
+      text-decoration: underline;
+    }
+
+    #comment-popup-container .reply {
+      margin-left: 50px;
+      position: relative;
+    }
+
+    #comment-popup-container .reply::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -25px;
+      width: 1px;
+      height: 100%;
+      background-color: #d3d3d3;
+    }
+
+    #comment-popup-container .reply::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: -25px;
+      width: 25px;
+      height: 1px;
+      background-color: #d3d3d3;
+    }
+
+    #comment-popup-container .reply:first-child::before {
+      top: 20px;
+    }
+
+    #comment-popup-container .reply:last-child::before {
+      height: calc(100% - 20px);
+    }
+
+    #comment-popup-container .footer {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    #comment-popup-container .footer img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    #comment-popup-container .footer input {
+      flex-grow: 1;
+      padding: 10px;
+      border-radius: 20px;
+      border: none;
+      background-color: #f0f2f5;
+      color: #050505;
+    }
+
+    #comment-popup-container .footer .icons {
+      display: flex;
+      gap: 10px;
+      margin-left: 10px;
+    }
+
+    #comment-popup-container .footer .icons i {
+      color: #606770;
+      cursor: pointer;
+    }
+
+    .comment {
+      padding: 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .comment .comment-header {
+      display: flex;
+      gap: 10px;
+    }
+
+    .comment .comment-content {
+      flex-grow: 1;
+    }
+
+    .comment .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+    }
+
+    .replies {
+      margin-left: 20px; /* Indent for nested replies */
+      border-left: 1px solid #e0e0e0; /* Optional visual separation */
+      padding-left: 10px;
+    }
+
+    .align-center {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
   </style>
 </head>
 <body>
@@ -307,12 +518,10 @@
   <div class="suggestions">
     <div class="user-info">
       <a>
-        <img alt="Profile picture of user Quang Son" height="32" src="https://storage.googleapis.com/a1aa/image/z2B5sfvtspTBGCPP1jwg62Vfk70qd3Ij8kDZ1VP9gScyxe3nA.jpg" width="32"/>
-        <span>
-       Quang Son
-      </span>
-        <button>
-          Switch
+        <img alt="Profile picture of user Quang Son" height="32" th:src="${userLoginAvatarUrl}" width="32"/>
+        <span th:text="${userLoginFullName}"></span>
+        <button id="switch-button">
+          Log out
         </button>
       </a>
     </div>
@@ -369,6 +578,13 @@
 <div id="popup-container">
   <!-- Popup content will be injected here -->
 </div>
+<div id="comment-popup-container" class="comment-popup-container">
+  <div class="header">
+    Bài viết của <span id="post-author-name"></span>
+    <i class="fas fa-times close-icon" onclick="closeCommentPopup()"></i>
+  </div>
+  <div class="comments"></div>
+</div>
 <script>
   document.getElementById('create-post-btn').addEventListener('click', function (e) {
     e.preventDefault();
@@ -395,10 +611,28 @@
                 }
               });
               nextImage();
+              document.body.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
             })
             .catch(error => console.error('Error loading popup:', error));
   });
 
+  $(document).ready(function() {
+    $('#switch-button').on('click', function() {
+      if (confirm('Bạn chắc chắn muốn đăng xuất chứ?')) {
+        $.ajax({
+          url: '/auth/logout',
+          type: 'POST',
+          contentType: 'application/json',
+          success: function(response) {
+            window.location.href = '/auth/login';
+          },
+          error: function(xhr, status, error) {
+            console.error('Logout failed:', error);
+          }
+        });
+      }
+    });
+  });
 </script>
 </body>
 </html>

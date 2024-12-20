@@ -90,6 +90,8 @@ function editImage() {
 
 function closePopup() {
     document.querySelector('.post-creation').style.display = 'none';
+    document.getElementById('popup-container').style.display = 'none';
+    document.body.style.backgroundColor = 'white';
 }
 
 showImage(currentIndex);
