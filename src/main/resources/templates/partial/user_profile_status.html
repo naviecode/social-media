@@ -1,10 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<img alt="Profile picture" height="150" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="150"/>
+<div class="profile-info">
+    <h1 th:text="${user.getFullName()}"></h1>
+    <div class="stats">
+        <div>
+                    <span>
+                     18
+                    </span>
+            posts
+        </div>
+        <div>
+            <span th:text="${user.getNumberOfFriends()}"></span>
+            Friends
+        </div>
+    </div>
+    <div class="actions" th:if="${userId != userLogin}">
+
+        <button class="following" th:if="${(statusFriend == null || statusFriend == '') && (existStatus == null || existStatus == '')}" onclick="sendAddFriend()">Add Friend</button>
+        <button class="following" th:if="${existStatus == 'pending'}">Pending</button>
+        <button class="following" th:if="${statusFriend == 'accepted'}" onclick="sendUnFriend()">Unfriend</button>
+        <div th:if="${statusFriend == 'pending'}">
+            <button class="following"  onclick="sendAcceptFriend()">Accpet</button>
+            <button class="following"  onclick="sendCancelFriend()">Deny</button>
+        </div>
+
+
+        <button th:if="${areFriends}">
+            <a href="/chat">
+                Message
+            </a>
+        </button>
+    </div>
+</div>

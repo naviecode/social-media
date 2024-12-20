@@ -1,0 +1,770 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>
+        Profile
+    </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fafafa;
+        }
+        .container {
+            display: flex;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #fff;
+            border-right: 1px solid #dbdbdb;
+            padding: 20px;
+        }
+        .sidebar h1 {
+            font-family: 'Billabong', cursive;
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+        .sidebar img {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #262626;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar ul li a i {
+            margin-right: 10px;
+        }
+        .content {
+            margin-left: 100px;
+            padding: 20px;
+            width: calc(100% - 100px);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .profile-header img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-info h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .profile-info p {
+            margin: 5px 0;
+            color: #8e8e8e;
+        }
+        .profile-info .stats {
+            display: flex;
+            margin-top: 10px;
+        }
+        .profile-info .stats div {
+            margin-right: 20px;
+        }
+        .profile-info .stats div span {
+            font-weight: 500;
+        }
+        .profile-info .actions {
+            margin-top: 10px;
+        }
+        .profile-info .actions button {
+            background-color: #0095f6;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .profile-info .actions button.following {
+            background-color: #fff;
+            color: #262626;
+            border: 1px solid #dbdbdb;
+        }
+        .profile-info .actions button a{
+            color:inherit;
+            text-decoration: none;
+        }
+        .highlights {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .highlights .highlight {
+            margin-right: 10px;
+            text-align: center;
+        }
+        .highlights .highlight img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 1px solid #dbdbdb;
+        }
+        .highlights .highlight p {
+            margin: 5px 0 0;
+            font-size: 12px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid #dbdbdb;
+            border-bottom: 1px solid #dbdbdb;
+            margin-bottom: 20px;
+        }
+        .tabs div {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .tabs div.active {
+            border-top: 1px solid #262626;
+            font-weight: 500;
+        }
+        .posts {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .posts .post {
+            width: calc(33.333% - 10px);
+            margin: 5px;
+        }
+        .posts .post img {
+            width: 100%;
+            height: auto;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+            .sidebar ul li a {
+                font-size: 12px;
+            }
+            .sidebar ul li a i {
+                margin-right: 0;
+            }
+            .content {
+                margin-left: 60px;
+                width: calc(100% - 60px);
+            }
+            .profile-header img {
+                width: 100px;
+                height: 100px;
+            }
+            .profile-info h1 {
+                font-size: 18px;
+            }
+            .profile-info .stats div {
+                margin-right: 10px;
+            }
+            .highlights .highlight img {
+                width: 60px;
+                height: 60px;
+            }
+            .posts .post {
+                width: calc(50% - 10px);
+            }
+        }
+        @media (max-width: 480px) {
+            .posts .post {
+                width: 100%;
+            }
+        }
+        .notification-panel-wrap {
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .notification-panel .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .notification-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .notification-item img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .notification-item .text {
+            flex-grow: 1;
+        }
+        .notification-item .text .title {
+            font-weight: bold;
+        }
+        .notification-item .text .subtitle {
+            color: #888;
+        }
+        .notification-item .icon {
+            color: #0095f6;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        .button-group button {
+            background-color: #efefef;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button-group .accept {
+            background-color: #0095f6;
+            color: #fff;
+        }
+        .button-group .deny {
+            background-color: #efefef;
+            color: #000;
+        }
+        .notification-panel {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            transition: left 0.3s ease;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .notification-panel.open {
+            left: 0;
+        }
+        .open-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #0095f6;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .notification {
+            display: flex;
+            align-items: center;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 1;
+            transform: translateY(0);
+            z-index: 9999;
+        }
+
+        .notification.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+
+        .notification-avatar {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            overflow: hidden;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .notification-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .notification-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .notification p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .search-box-main{
+            width: 100%;
+            height: 100vh;
+            background-color: white;
+            max-width: 400px;
+            padding: 20px;
+            box-sizing: border-box;
+            position: absolute;
+            left: -100%;
+            transition: left 0.5s ease-in-out;
+        }
+        .search-box-main.show {
+            left: 0;
+        }
+
+        .search-box-main h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .search-box-main .search-box {
+            display: flex;
+            align-items: center;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box-main .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            flex-grow: 1;
+            font-size: 16px;
+        }
+        .search-box-main .search-box .clear-icon {
+            font-size: 16px;
+            color: #ccc;
+            cursor: pointer;
+        }
+        .search-box-main .recent {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .search-box-main .recent-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .search-box-main .recent-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .search-box-main .recent-item span {
+            font-size: 16px;
+        }
+        .search-box-main .no-recent {
+            font-size: 16px;
+            color: #999;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .search-box-main .toggle-button {
+            margin: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+        .search-box-main .close-button {
+            font-size: 24px;
+            color: #ccc;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <h1>Media Social</h1>
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="fas fa-home">
+                    </i>
+                    Home
+                </a>
+            </li>
+            <li>
+                <a onclick="toggleContainer()">
+                    <i class="fas fa-search">
+                    </i>
+                    Search
+                </a>
+            </li>
+            <li>
+                <a href="/chat">
+                    <i class="fas fa-envelope">
+                    </i>
+                    Messages
+                </a>
+            </li>
+            <li>
+                <a style="cursor: pointer" onclick="toggleNotifications()">
+                    <i class="fas fa-heart">
+                    </i>
+                    Notifications
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-plus-square">
+                    </i>
+                    Create
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/user/{userLogin}(userLogin=${userLogin})}">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="search-box-main" id="search-box-main">
+        <span class="close-button" onclick="toggleContainer()">&times;</span>
+        <h1>Search</h1>
+        <div class="search-box">
+            <input type="text" oninput="debounceSearchAllUser(event)" placeholder="Search">
+            <span class="clear-icon">&times;</span>
+        </div>
+        <div class="recent">Recent</div>
+        <div class="recent-item-render">
+        </div>
+    </div>
+    <div class="content" >
+        <div class="profile-header" id="user-info-content">
+            <img alt="Profile picture" height="150" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="150"/>
+            <div class="profile-info">
+                <h1 th:text="${user.getFullName()}"></h1>
+                <div class="stats">
+                    <div>
+                    <span>
+                     18
+                    </span>
+                        posts
+                    </div>
+                    <div>
+                        <span th:text="${user.getNumberOfFriends()}"></span>
+                        Friends
+                    </div>
+                </div>
+                <div class="actions" th:if="${userId != userLogin}">
+
+                    <button class="following" th:if="${(statusFriend == null || statusFriend == '') && (existStatus == null || existStatus == '')}" onclick="sendAddFriend()">Add Friend</button>
+                    <button class="following" th:if="${existStatus == 'pending'}">Pending</button>
+                    <button class="following" th:if="${statusFriend == 'accepted'}">Friend</button>
+                    <button class="following" th:if="${statusFriend == 'accepted'}" onclick="sendUnFriend()">Unfriend</button>
+                    <div th:if="${statusFriend == 'pending'}">
+                        <button class="following"  onclick="sendAcceptFriend()">Accpet</button>
+                        <button class="following"  onclick="sendCancelFriend()">Deny</button>
+                    </div>
+
+
+                    <button th:if="${areFriends}">
+                        <a href="/chat">
+                            Message
+                        </a>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="tabs">
+            <div class="active">
+                POSTS
+            </div>
+        </div>
+        <div class="posts">
+            <div class="post">
+                <img alt="Post 1" height="300" src="https://storage.googleapis.com/a1aa/image/7w2Ao8MwQgL7P9RrxdIr1xsSMelR6Ni1X9rgN8r7IGes4e4nA.jpg" width="300"/>
+            </div>
+            <div class="post">
+                <img alt="Post 2" height="300" src="https://storage.googleapis.com/a1aa/image/DWTeXHSYKGWENyVCQt4pWD7LCBmpQ8DLQm0q9sPkPeYw4e4nA.jpg" width="300"/>
+            </div>
+            <div class="post">
+                <img alt="Post 3" height="300" src="https://storage.googleapis.com/a1aa/image/N42f3KMbCCRTACaZ91iSh1DZDSo0UcdjK1JeGUhTdT7g4e4nA.jpg" width="300"/>
+            </div>
+            <div class="post">
+                <img alt="Post 4" height="300" src="https://storage.googleapis.com/a1aa/image/fnEIkZfYMIg2m0qSUAfLQwkgZbnX5XtKcFLEiww8jP9cx94nA.jpg" width="300"/>
+            </div>
+            <div class="post">
+                <img alt="Post 5" height="300" src="https://storage.googleapis.com/a1aa/image/BQqdy1vvugJDCVQYO7kHlXpNzUmR5LSM90zmfihapMLNcPeTA.jpg" width="300"/>
+            </div>
+            <div class="post">
+                <img alt="Post 6" height="300" src="https://storage.googleapis.com/a1aa/image/5BNAtQSuoh78HFaLkpBFWNILeWPgTflj6g33q8rkJle4w94nA.jpg" width="300"/>
+            </div>
+        </div>
+    </div>
+    <div class="notification-panel" id="notificationPanel">
+        <button class="close-button" onclick="toggleNotifications()">
+            &times;
+        </button>
+        <div class="notification-panel-wrap">
+            <div class="header">
+                Notifications
+            </div>
+            <div id="notification-item-render">
+                <div class="notification-item" th:each="notify : ${notifications}">
+                    <img alt="Profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
+                    <div class="text">
+                        <div class="title" th:text="${notify.getContent()}"></div>
+                        <div class="subtitle" th:text="${notify.getCreatedAt()}"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="notification-container" class="notification hidden">
+    <div class="notification-avatar">
+        <img id="notification-avatar" src="" alt="Avatar">
+    </div>
+    <div class="notification-content">
+        <h4 class="notification-title">Thông báo</h4>
+        <p id="notification-message">Bạn có tin nhắn mới</p>
+    </div>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script th:inline="javascript">
+    let loginUserId = /*[[${userLogin}]]*/ 'defaultUser';
+    let userIdCurrent = /*[[${userId}]]*/ 'defaultUser';
+    let userName =  /*[[${userName}]]*/ 'defaultUser';
+    let stompClient;
+    let timeOutThird;
+
+    $(document).ready(function() {
+        connectToWebSocket();
+        renderStatusFriend();
+    });
+    function connectToWebSocket() {
+        const socket = new SockJS('/chat');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, () => {
+
+            stompClient.subscribe('/user/queue/notifications', function (message) {
+                const chatMessage = JSON.parse(message.body);
+                if(chatMessage.type === 'ADD_FRIEND' || chatMessage.type === 'ACCEPT_FRIEND'){
+                    showNotification('https://via.placeholder.com/50', chatMessage.content);
+                }
+                renderNotify();
+                renderStatusFriend();
+            });
+        });
+    }
+
+    function sendAddFriend(){
+        const type = "ADD_FRIEND";
+        const senderId = userIdCurrent;
+        const content = "";
+        const message = { senderId , content , fullName: userName, type , attr1: loginUserId};
+        stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+    }
+
+    function sendCancelFriend(){
+        //Hủy kết bạn
+        const type = "CANCEL_FRIEND";
+        const senderId = userIdCurrent;
+        const content = "";
+        const message = { senderId , content , fullName: userName, type , attr1: loginUserId};
+        stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+    }
+
+    function sendAcceptFriend(){
+        const type = "ACCEPT_FRIEND";
+        const senderId = userIdCurrent;
+        const content = "";
+        const message = { senderId , content , fullName: userName, type , attr1: loginUserId};
+        stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+    }
+
+    function sendUnFriend(){
+        const type = "UNFRIEND";
+        const senderId = userIdCurrent;
+        const content = "";
+        const message = { senderId , content , fullName: userName, type , attr1: loginUserId};
+        stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+    }
+
+    function renderNotify(){
+        $.ajax({
+            url: '/notifications/user',
+            method: 'GET',
+            success: function(data) {
+                let notificationPanelWrap = $('#notification-item-render');
+                notificationPanelWrap.empty();
+                data.forEach(function(notification) {
+                    let notificationItem = `
+                    <div class="notification-item">
+                        <img src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" alt="Profile picture" width="40" height="40">
+                        <div class="text">
+                            <div class="title">${notification.content}</div>
+                            <div class="subtitle">${new Date(notification.createdAt).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+                    notificationPanelWrap.append(notificationItem);
+                });
+            },
+            error: function(error) {
+                console.error('Error fetching notifications:', error);
+            }
+        });
+    }
+
+    function toggleNotifications() {
+        let panel = document.getElementById('notificationPanel');
+        if (panel.classList.contains('open')) {
+            panel.classList.remove('open');
+        } else {
+            panel.classList.add('open');
+            renderNotify();
+        }
+    }
+
+    function renderStatusFriend(){
+        $.ajax({
+            url: '/user/PartialUserProfileStatus',
+            type: 'GET',
+            data: { userId: userIdCurrent},
+            success: function(response) {
+                $('#user-info-content').html(response);
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', error);
+                alert('Không thể tải thông tin.');
+            }
+        });
+    }
+
+    function showNotification(avatarUrl, message) {
+        const notification = document.getElementById('notification-container');
+        const notificationAvatar = document.getElementById('notification-avatar');
+        const notificationMessage = document.getElementById('notification-message');
+
+        // Set avatar and message
+        notificationAvatar.src = avatarUrl;
+        notificationMessage.textContent = message;
+
+        // Show notification
+        notification.classList.remove('hidden');
+
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 3000);
+    }
+
+    function markAsRead(){
+        $.ajax({
+            url: '/notifications/mark-as-read',
+            method: 'POST',
+            success: function() {
+                renderNotify();
+            },
+            error: function(error) {
+                console.error('Error marking notifications as read:', error);
+            }
+        });
+        renderNotify();
+    }
+
+    function toggleContainer() {
+        let container = document.getElementById('search-box-main');
+        container.classList.toggle('show');
+    }
+
+    const debounceSearchAllUser = debounceAll((event) => {
+        const input = event.target.value;
+        fetchAllUsersWithAjax(input);
+    }, 1000);
+
+    function debounceAll(func, delay) {
+        return function (...args) {
+            clearTimeout(timeOutThird);
+            timeOutThird = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+    function fetchAllUsersWithAjax(name) {
+        $.ajax({
+            url: '/user/search',
+            type: 'GET',
+            data: { name: name},
+            success: function(response) {
+                let recentItemsHtml = response.map(user => `
+                        <a style="text-decoration: none; color:black; " href="/user/${user.userId}">
+                            <div class="recent-item">
+                                <img alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
+                                <span>${user.fullName}</span>
+                            </div>
+                        </a>
+                    `).join('');
+                $('.recent-item-render').html(recentItemsHtml);
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', error);
+                alert('Không thể tải bạn bè.');
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>

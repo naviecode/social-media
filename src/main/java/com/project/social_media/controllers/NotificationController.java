@@ -2,22 +2,39 @@ package com.project.social_media.controllers;
 
 
 import com.project.social_media.dto.NotificationsDto;
+import com.project.social_media.models.Chats;
+import com.project.social_media.models.Notifications;
 import com.project.social_media.models.Users;
 import com.project.social_media.patterns.Observer.FriendObserver;
 import com.project.social_media.patterns.Observer.GroupObserver;
 import com.project.social_media.patterns.Observer.NotificationSubject;
-import com.project.social_media.services.UserService;
+import com.project.social_media.services.*;
 import com.project.social_media.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
+@RequestMapping("/notifications")
 public class NotificationController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NotificationsService notificationsService;
+
+    @Autowired
+    private FriendService friendService;
+
+    @Autowired
+    private ChatMemberService chatMemberService;
+
+    @Autowired
+    private ChatService chatService;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -81,6 +98,53 @@ public class NotificationController {
             case "ADD_MEMBER":
                 notify.setContent("Bạn đã được thêm vào nhóm");
                 break;
+            case "ADD_FRIEND":
+                Users user = userService.getUserById(notify.getSenderId()).getData();
+                if(user == null) {
+                    notify.setContent("Người gửi không tồn tại");
+                    break;
+                }
+                if(!friendService.hasPendingFriendRequest(Long.parseLong(notify.getAttr1()),notify.getSenderId()).getData())
+                {
+                    Notifications notifications = new Notifications(user.getUserId(),null  , userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã gửi lời mời kết bạn", "personal");
+                    friendService.addFriend(Long.parseLong(notify.getAttr1()) ,notify.getSenderId());
+                    notificationsService.insertNotification(notifications);
+                    notify.setContent("Bạn có lời mời kết bạn đang chờ duyệt");
+                }
+
+                if(friendService.hasPendingFriendRequest(Long.parseLong(notify.getAttr1()),notify.getSenderId()).getData() &&
+                    friendService.hasPendingFriendRequest(notify.getSenderId(),Long.parseLong(notify.getAttr1())).getData()) {
+                    notify.setContent("Bạn và " + user.getFullName() + " đã trở thành bạn bè");
+                    friendService.updateFriendStatus(Long.parseLong(notify.getAttr1()), notify.getSenderId(), "accepted");
+                    friendService.updateFriendStatus(notify.getSenderId(), Long.parseLong(notify.getAttr1()), "accepted");
+                    notificationsService.updateNotificationStatusByUserId(Long.parseLong(notify.getAttr1()), true);
+                    notificationsService.updateNotificationStatusByUserId(notify.getSenderId(), true);
+                    Long chatId = chatService.insertChat(null, false).getData();
+                    chatMemberService.insertChatMember(chatId, Long.parseLong(notify.getAttr1()));
+                    chatMemberService.insertChatMember(chatId, notify.getSenderId());
+                    break;
+                }
+                notify.setContent(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã gửi lời mời kết bạn");
+                break;
+            case "ACCEPT_FRIEND":
+                friendService.addFriend(Long.parseLong(notify.getAttr1()) ,notify.getSenderId());
+                friendService.updateFriendStatus(Long.parseLong(notify.getAttr1()), notify.getSenderId(), "accepted");
+                friendService.updateFriendStatus(notify.getSenderId(), Long.parseLong(notify.getAttr1()), "accepted");
+                Long chatId = chatService.insertChat(null, false).getData();
+                chatMemberService.insertChatMember(chatId, Long.parseLong(notify.getAttr1()));
+                chatMemberService.insertChatMember(chatId, notify.getSenderId());
+                notify.setContent(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã chấp nhận lời mời kết bạn");
+                break;
+            case "CANCEL_FRIEND":
+                friendService.updateFriendStatus(notify.getSenderId(), Long.parseLong(notify.getAttr1()), "deny");
+                break;
+            case "UNFRIEND":
+                Long chatIdTwoUser = chatMemberService.GetChatIdTwoUser(Long.parseLong(notify.getAttr1()), notify.getSenderId()).getData();
+                chatMemberService.deleteChatMembersByChatId(chatIdTwoUser);
+                chatService.deleteChatById(chatIdTwoUser);
+                friendService.deleteFriend(Long.parseLong(notify.getAttr1()), notify.getSenderId());
+                friendService.deleteFriend(notify.getSenderId(), Long.parseLong(notify.getAttr1()));
+                break;
             default:
                 notify.setContent("Thay đổi nhóm không xác định.");
         }
@@ -93,6 +157,21 @@ public class NotificationController {
         notificationSubject.removeObserver(friendObserver);
     }
 
+    @PutMapping("/update-status/{notificationId}")
+    public void updateNotificationStatus(@PathVariable Long notificationId, @RequestParam Boolean isRead) {
+        notificationsService.updateNotificationStatus(notificationId, isRead);
+    }
+
+    @PutMapping("/update-status-by-user/{userId}")
+    public void updateNotificationStatusByUserId(@PathVariable Long userId, @RequestParam Boolean isRead) {
+        notificationsService.updateNotificationStatusByUserId(userId, isRead);
+    }
+
+    @GetMapping("/user")
+    public List<Notifications> getUserNotifications() {
+        Long userId = SecurityUtils.getLoggedInUserId();
+        return notificationsService.getNotificationsByUserId(userId);
+    }
 
 
 }
