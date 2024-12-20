@@ -4,10 +4,7 @@ import com.project.social_media.dto.ChatGroupWithUnreadCountDto;
 import com.project.social_media.dto.FriendWithUsernameDto;
 import com.project.social_media.dto.UserInfoDto;
 import com.project.social_media.models.Users;
-import com.project.social_media.services.ChatService;
-import com.project.social_media.services.FriendService;
-import com.project.social_media.services.NotificationsService;
-import com.project.social_media.services.UserService;
+import com.project.social_media.services.*;
 import com.project.social_media.utils.SecurityUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +41,9 @@ public class UserController {
     private ChatService chatService;
 
     @Autowired
+    private PostService postService;
+
+    @Autowired
     private NotificationsService notificationsService;
 
     @RequestMapping("/{userId}")
@@ -54,6 +54,7 @@ public class UserController {
         model.addAttribute("userName", user.getUsername());
         model.addAttribute("notifications", notificationsService.getNotificationsByUserId(userLogin));
         model.addAttribute("chatGroups", chatService.getChatGroupsByUserId(userId).getData());
+        model.addAttribute("postCount", postService.countPostsByUserId(userId));
 
         if (user != null) {
             model.addAttribute("user", user);
@@ -76,6 +77,7 @@ public class UserController {
         model.addAttribute("userLogin", userLogin);
         model.addAttribute("userId", userId);
         model.addAttribute("user", user);
+        model.addAttribute("postCount", postService.countPostsByUserId(userId));
 
 
         return "partial/user_profile_status";
