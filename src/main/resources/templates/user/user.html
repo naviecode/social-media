@@ -458,34 +458,75 @@
             font-weight: bold;
             cursor: pointer;
 
-        .post-actions {
-            display: flex;
-            justify-content: space-evenly;
-            padding: 10px;
-            position: relative;
-            align-items: center;
         }
-        .post-actions i {
-            font-size: 24px;
-            margin-right: 10px;
-            cursor: pointer;
-            position: relative;
-        }
-        .post-actions .like-container,
-        .post-actions .comment-container,
-        .post-actions .share-container {
-            display: flex;
-            align-items: center;
-            position: relative;
-        }
-        .post-actions .like-container .like-count,
-        .post-actions .comment-container .comment-count,
-        .post-actions .share-container .share-count {
-            font-size: 14px;
-            font-weight: bold;
-            margin-left: 5px;
-
-        }
+            .post {
+                background-color: #fff;
+                border: 1px solid #dbdbdb;
+                margin-bottom: 20px;
+                border-radius: 3px;
+            }
+            .post-header, .post-footer {
+                display: flex;
+                align-items: center;
+                padding: 10px;
+            }
+            .post-header img, .post-footer img {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+            .post-header span {
+                font-weight: 500;
+            }
+            .post-image img {
+                width: 100%;
+                height: 100%;
+            }
+            .post-actions {
+                display: flex;
+                justify-content: space-evenly;
+                padding: 10px;
+                position: relative;
+                align-items: center;
+            }
+            .post-actions i {
+                font-size: 24px;
+                margin-right: 10px;
+                cursor: pointer;
+                position: relative;
+            }
+            .post-actions .like-container,
+            .post-actions .comment-container,
+            .post-actions .share-container {
+                display: flex;
+                align-items: center;
+                position: relative;
+            }
+            .post-actions .like-container .like-count,
+            .post-actions .comment-container .comment-count,
+            .post-actions .share-container .share-count {
+                font-size: 14px;
+                font-weight: bold;
+                margin-left: 5px;
+            }
+            .post-likes {
+                font-weight: 500;
+                padding: 0 10px;
+            }
+            .post-contents {
+                padding: 0 10px;
+            }
+            .post-contents span {
+                font-weight: 500;
+            }
+            .post-footer input {
+                flex: 1;
+                padding: 10px;
+                border: 1px solid #dbdbdb;
+                border-radius: 20px;
+                outline: none;
+            }
     </style>
 </head>
 <body>
@@ -582,10 +623,8 @@
                 POSTS
             </div>
         </div>
-        <div class="posts">
-            <div class="main-content" id="post-container">
-                <!-- Posts will be appended here -->
-            </div>
+        <div class="main-content" id="post-container">
+            <!-- Posts will be appended here -->
         </div>
     </div>
     <div class="notification-panel" id="notificationPanel">
