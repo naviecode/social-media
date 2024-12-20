@@ -82,6 +82,7 @@ public class AuthController {
         Cookie jwtCookie = new Cookie("token", null);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setMaxAge(0);
+        jwtCookie.setPath("/");
         response.addCookie(jwtCookie);
         return "redirect:/auth/login";
     }

@@ -62,10 +62,6 @@ function loadPosts() {
                                         <i class="far fa-comment"></i>
                                         <span class="comment-count">${post.commentCount}</span>
                                     </div>
-                                    <div class="share-container">
-                                        <i class="far fa-paper-plane"></i>
-                                        <span class="share-count">${post.shareCount}</span>
-                                    </div>
                                 </div>
                                 <div class="post-footer">
                                     <img alt="Profile picture of user" height="32" src="${post.avatarUrl}" width="32"/>
@@ -111,10 +107,6 @@ function loadPosts() {
                                     <div class="comment-container">
                                         <i class="far fa-comment"></i>
                                         <span class="comment-count">${post.commentCount}</span>
-                                    </div>
-                                    <div class="share-container">
-                                        <i class="far fa-paper-plane"></i>
-                                        <span class="share-count">${post.shareCount}</span>
                                     </div>
                                 </div>
                                 <div class="post-create-dt" style="font-weight: 300; color: grey; padding: 0 10px;">
@@ -309,3 +301,24 @@ function displayComment(comment) {
     const postElement = document.querySelector(`.post[data-post-id="${comment.postId}"] .comments`);
     postElement.appendChild(commentElement);
 }
+
+$(document).on('click', '.comment-container', function() {
+    const postId = $(this).closest('.post').data('post-id');
+    const postAuthorName = $(this).closest('.post').find('.post-header span').text();
+    currentPostId = postId;
+
+    $('#post-author-name').text(postAuthorName);
+    $('.comment-popup-container').show();
+
+    $.ajax({
+        url: `/api/comments/${postId}`,
+        type: 'GET',
+        success: function(comments) {
+            displayCommentsPosts(comments);
+            openCommentPopup(postId, postAuthorName);
+        },
+        error: function(error) {
+            console.error('Error loading comments:', error);
+        }
+    });
+});
