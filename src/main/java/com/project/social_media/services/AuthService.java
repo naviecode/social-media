@@ -29,7 +29,7 @@ public class AuthService {
     }
 
     public ResponseServiceEntity<String> login(String username, String password) {
-        Users user = usersRepository.findByUsername(username).orElseGet(null);
+        Users user = usersRepository.findByUsername(username).orElse(null);
         if(user == null){
             return ResponseServiceEntity.error(ErrorCodes.ERROR_AUTH_USERNAME_NOTFOUND);
         }
