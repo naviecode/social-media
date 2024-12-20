@@ -102,19 +102,19 @@ public class UserController {
 
     @PostMapping("/upload")
     @ResponseBody
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file){
+    public String uploadFile(@RequestParam("file") MultipartFile file){
         if(file.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Chọn file");
+            return "Chọn file";
         }
         try{
             Path path = Paths.get(UploadDir + File.separator + file.getOriginalFilename());
             Files.copy(file.getInputStream(), path);
-            return ResponseEntity.status(HttpStatus.OK).body("Upload thành công" + file.getOriginalFilename());
-
+            return "redirect:/user/" + SecurityUtils.getLoggedInUserId();
         }catch (IOException e){
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload khong thanh cong");
+            return "redirect:/home";
         }
+
     }
 
 }
