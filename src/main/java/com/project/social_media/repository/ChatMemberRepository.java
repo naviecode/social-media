@@ -5,6 +5,7 @@ import com.project.social_media.models.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,11 +13,13 @@ public interface ChatMemberRepository extends JpaRepository<ChatMembers, Long> {
     boolean existsByChatIdAndUserId(Long chatId, Long userId);
 
     @Query("SELECT cm1.chatId " +
-            "FROM ChatMembers cm1, ChatMembers cm2 " +
+            "FROM ChatMembers cm1, ChatMembers cm2, Chats c " +
             "WHERE cm1.chatId = cm2.chatId " +
+            "AND cm1.chatId = c.chatId " +
             "AND cm1.userId = :userId1 " +
-            "AND cm2.userId = :userId2")
-    Long findChatIdByUserIds(Long userId1, Long userId2);
+            "AND cm2.userId = :userId2 " +
+            "AND c.isGroupChat = false")
+    List<Long> findChatIdsByUserIds(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
 
     @Query("SELECT COUNT(cm) > 0 FROM ChatMembers cm WHERE cm.chatId = :chatId AND cm.userId = :userId")
     boolean isMemberOfChat(@Param("chatId") Long chatId, @Param("userId") Long userId);
@@ -32,4 +35,7 @@ public interface ChatMemberRepository extends JpaRepository<ChatMembers, Long> {
 
     @Query("SELECT COUNT(cm) FROM ChatMembers cm WHERE cm.chatId = :chatId")
     long countMembersByChatId(@Param("chatId") Long chatId);
+    @Transactional
+    void deleteByChatId(Long chatId);
+
 }

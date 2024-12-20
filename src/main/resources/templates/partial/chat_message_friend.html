@@ -1,11 +1,11 @@
 <div class="chat">
     <input type="hidden" id="loginId" th:attr="data-loginId=${userIdLogin}">
     <div class="header">
-        <img alt="Chat profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/Zoup9T5EEK5aPllI1ivvp3SpsYhSt54TeZ3vAGZnQsFTKZ8JA.jpg" width="40"/>
+        <img alt="Chat profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
         <div class="info">
-            <div class="name" th:text="${chatName}"></div>
-            <div class="status">
-                Active 2m ago
+            <div class="name">
+                <a style="text-decoration: none; color:black;" th:if="${isGroup}" th:text="${chatName}"></a>
+                <a style="text-decoration: none; color:black;" th:if="${!isGroup}" th:text="${chatName}" th:href="@{/user/{userIdReceive}(userIdReceive=${userIdReceive})}"></a>
             </div>
         </div>
             <div class="icons" onclick="toggleDetails()">
@@ -16,18 +16,18 @@
 
     <div id="messages" class="messages">
         <div class="profile-header">
-            <img alt="Profile picture of a person holding a camera" height="80" src="https://storage.googleapis.com/a1aa/image/E1GHWdeUexu3J0fh2UzxdMfn185STjjCucqIUMUpoZwE2isPB.jpg" width="80"/>
+            <img alt="Profile picture of a person holding a camera" height="80" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="80"/>
             <h2 class="profile-header-name" th:text="${chatName}"></h2>
             <p>
                 Social-media
             </p>
             <button th:if="${!isGroup}">
-                <a href="/">View profile</a>
+                <a th:href="@{/user/{userIdReceive}(userIdReceive=${userIdReceive})}">View profile</a>
             </button>
         </div>
 
         <div class="message" th:each="message : ${messageList}" th:classappend="${message.getSenderId() == userIdLogin ? 'sent' : ''}">
-            <img class="chat-image" alt="User profile picture" th:if="${message.getSenderId() == userIdLogin ? false : true}" height="40" src="https://storage.googleapis.com/a1aa/image/wDG5C9sCdXLRHpPFzUHJkkeD8ZhLWw9u5D6ea6MEDEchUy4TA.jpg" width="40"/>
+            <img class="chat-image" alt="User profile picture" th:if="${message.getSenderId() == userIdLogin ? false : true}" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
             <div class="chat-content">
                 <div class="chat-username" th:if="${isGroup && message.getSenderId() != userIdLogin}">
                     <span th:text="${message.getSenderName()}"></span>
@@ -67,10 +67,10 @@
 
         <div class="list-members">
             <div class="member" th:each="member : ${members}">
-                <img src="https://placehold.co/40x40" alt="Profile picture of quangsonnn"/>
+                <img src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" alt="Profile picture of quangsonnn"/>
                 <div class="member-info">
                     <div class="name" th:text="${member.getFullName()}"></div>
-                    <div class="role" th:if="${isGroup}">Người tạo</div>
+                    <div class="role" th:if="${isGroup}">Thành viên</div>
                 </div>
                 <div class="member-options" th:if="${isGroup}" onclick="toggleRemoveMember(this)">
                     <i class="fas fa-ellipsis-v"></i>

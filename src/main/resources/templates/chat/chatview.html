@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="/static/css/chat.css" >
+
     <style>
     body {
       margin: 0;
@@ -713,6 +713,90 @@
     .popup-warning-buttons .cancel-button {
         background-color: #ddd;
     }
+    .search-box-main{
+        width: 100%;
+        height: 100vh;
+        background-color: white;
+        max-width: 400px;
+        padding: 20px;
+        box-sizing: border-box;
+        position: absolute;
+        left: -100%;
+        transition: left 0.5s ease-in-out;
+    }
+    .search-box-main.show {
+        left: 0;
+    }
+
+    .search-box-main h1 {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .search-box-main .search-box {
+        display: flex;
+        align-items: center;
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+    .search-box-main .search-box input {
+        border: none;
+        background: none;
+        outline: none;
+        flex-grow: 1;
+        font-size: 16px;
+    }
+    .search-box-main .search-box .clear-icon {
+        font-size: 16px;
+        color: #ccc;
+        cursor: pointer;
+    }
+    .search-box-main .recent {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .search-box-main .recent-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .search-box-main .recent-item img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    .search-box-main .recent-item span {
+        font-size: 16px;
+    }
+    .search-box-main .no-recent {
+        font-size: 16px;
+        color: #999;
+        text-align: center;
+        margin-top: 50px;
+    }
+    .search-box-main .toggle-button {
+        margin: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+    }
+    .search-box-main .close-button {
+        font-size: 24px;
+        color: #ccc;
+        cursor: pointer;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
 
   </style>
 </head>
@@ -722,16 +806,12 @@
           <i class="fas fa-home">
           </i>
       </a>
-      <a  class="navbar-search">
+      <a  class="navbar-search" onclick="toggleContainer()">
           <i class="fas fa-search">
           </i>
       </a>
-      <a href="/userinfo" class="navbar-main-user">
+      <a th:href="@{/user/{userLogin}(userLogin=${userLogin})}" class="navbar-main-user">
           <i class="fas fa-user">
-          </i>
-      </a>
-      <a>
-          <i class="fas fa-heart">
           </i>
       </a>
   </div>
@@ -769,6 +849,18 @@
       </div>
   </div>
 
+  <div class="search-box-main" id="search-box-main">
+      <span class="close-button" onclick="toggleContainer()">&times;</span>
+      <h1>Search</h1>
+      <div class="search-box">
+          <input type="text" oninput="debounceSearchAllUser(event)" placeholder="Search">
+          <span class="clear-icon">&times;</span>
+      </div>
+      <div class="recent">Recent</div>
+      <div class="recent-item-render">
+      </div>
+  </div>
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script th:inline="javascript">
       let stompClient;
@@ -776,6 +868,7 @@
       let loginUserId = /*[[${userLogin}]]*/ 'defaultUser';
       let timeout;
       let timeOutSecond;
+      let timeOutThird;
       let userName = "";
       let fullName =  /*[[${fullName}]]*/ 'defaultUser';
 
@@ -860,6 +953,11 @@
       const debounceSearchMain = debounceMain((event) => {
           const input = event.target.value;
           fetchFriendsSearchMainWithAjax(input);
+      }, 1000);
+
+      const debounceSearchAllUser = debounceAll((event) => {
+          const input = event.target.value;
+          fetchAllUsersWithAjax(input);
       }, 1000);
 
       function changeGroupName(messages){
@@ -1051,7 +1149,7 @@
           newMessage.classList.add("message");
           if(isGroup){
               newMessage.innerHTML = `
-            <img class="chat-image" alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/wDG5C9sCdXLRHpPFzUHJkkeD8ZhLWw9u5D6ea6MEDEchUy4TA.jpg" width="40"/>
+            <img class="chat-image" alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
             <div class="chat-content">
                 <div class="chat-username">
                     <span>${chatMessage.fullName}</span>
@@ -1064,7 +1162,7 @@
           }
           else{
               newMessage.innerHTML = `
-            <img class="chat-image" alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/wDG5C9sCdXLRHpPFzUHJkkeD8ZhLWw9u5D6ea6MEDEchUy4TA.jpg" width="40"/>
+            <img class="chat-image" alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
             <div class="chat-content">
                 <div class="chat-message">
                     <div class="text">${chatMessage.content}</div>
@@ -1147,6 +1245,13 @@
               timeOutSecond = setTimeout(() => func.apply(this, args), delay);
           };
       }
+
+      function debounceAll(func, delay) {
+          return function (...args) {
+              clearTimeout(timeOutThird);
+              timeOutThird = setTimeout(() => func.apply(this, args), delay);
+          };
+      }
     function fetchFriendsWithAjax(name) {
       if (!name) {
           $("#friendList").empty();
@@ -1160,7 +1265,7 @@
           success: function (response) {
               let listItems = response.data.map(friend => `
                 <div class="user-item" data-user-id="${friend.userId2}" onclick="selectUser(event)">
-                    <img alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/Rk0RfHpTtzwuPC5genqKpfhxJrKSmvdyojEpn1xYe8tR0xsPB.jpg" width="40"/>
+                    <img alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
                     <div class="user-info">
                       <h2>
                         ${friend.fullName}
@@ -1197,7 +1302,28 @@
           });
       }
 
-
+      function fetchAllUsersWithAjax(name) {
+          $.ajax({
+              url: '/user/search',
+              type: 'GET',
+              data: { name: name},
+              success: function(response) {
+                  let recentItemsHtml = response.map(user => `
+                        <a style="text-decoration: none; color:black; " href="/user/${user.userId}">
+                            <div class="recent-item">
+                                <img alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
+                                <span>${user.fullName}</span>
+                            </div>
+                        </a>
+                    `).join('');
+                  $('.recent-item-render').html(recentItemsHtml);
+              },
+              error: function (xhr, status, error) {
+                  console.error('AJAX Error:', error);
+                  alert('Không thể tải bạn bè.');
+              }
+          });
+      }
 
 
       function selectUser(event) {
@@ -1236,7 +1362,7 @@
           userItem.className = 'user-item';
           userItem.dataset.userId = userId;
           userItem.innerHTML = `
-            <img alt="User profile picture" height="40" src="https://storage.googleapis.com/a1aa/image/Rk0RfHpTtzwuPC5genqKpfhxJrKSmvdyojEpn1xYe8tR0xsPB.jpg" width="40"/>
+            <img alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
             <div class="user-info">
                 <h2>${userName}</h2>
             </div>
@@ -1327,8 +1453,8 @@
 
       let action = "leave";
       function showWarningPopup(action) {
-          var popupWarning = document.getElementById('popupWarning');
-          var popupWarningHeader = document.getElementById('popupWarningHeader');
+          let popupWarning = document.getElementById('popupWarning');
+          let popupWarningHeader = document.getElementById('popupWarningHeader');
           if (action === 'leave') {
               action = "leave";
               popupWarningHeader.innerText = 'Are you sure you want to leave the chat?';
@@ -1386,7 +1512,10 @@
           removeMember.classList.toggle('show');
       }
 
-
+      function toggleContainer() {
+          let container = document.getElementById('search-box-main');
+          container.classList.toggle('show');
+      }
 
 
   </script>

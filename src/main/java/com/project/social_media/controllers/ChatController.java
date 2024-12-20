@@ -113,6 +113,7 @@ public class ChatController {
 
         model.addAttribute("isGroup", isGroup);
         model.addAttribute("userIdLogin", userId_1_Long);
+        model.addAttribute("userIdReceive", userId);
         model.addAttribute("chatId", chatId_Long);
         List<MessageWithSenderNameDto> messages = messagesService.GetAllMessagesByChatId(chatId_Long).getData();
         model.addAttribute("messageList", messages);
@@ -127,7 +128,8 @@ public class ChatController {
     @ResponseBody
     public ResponseServiceEntity<Long> createGroupChat(@RequestParam("userIds") List<Long> userIds) {
         userIds.add(SecurityUtils.getLoggedInUserId());
-        ResponseServiceEntity<Long> result = chatService.createGroupChat(userIds);
+        String groupName = userService.getUserNamesByIds(userIds);
+        ResponseServiceEntity<Long> result = chatService.createGroupChat(userIds, groupName);
         return result;
     }
 

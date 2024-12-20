@@ -29,14 +29,17 @@ public class ChatService {
     private UsersRepository usersRepository;
 
 
-    public ResponseServiceEntity<Long> createGroupChat(List<Long> userIds) {
+    public ResponseServiceEntity<Long> createGroupChat(List<Long> userIds, String groupName) {
+
         if (userIds.size() < 3) {
             return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_ADD_GROUP_SIZE);
         }
+
         Chats newChat = new Chats();
-        newChat.setGroupName("Group chat");
+        newChat.setGroupName(groupName);
         newChat.setIsGroupChat(true);
         newChat.setCreatedAt(LocalDateTime.now());
+        newChat.setUserIdCreated(SecurityUtils.getLoggedInUserId());
         Chats savedChat = chatRepository.save(newChat);
 
         for (Long userId : userIds) {
@@ -44,6 +47,15 @@ public class ChatService {
             chatMembersRepository.save(chatMember);
         }
 
+        return ResponseServiceEntity.success(savedChat.getChatId(), ErrorCodes.SUCCESS);
+    }
+
+    public ResponseServiceEntity<Long> insertChat(String groupName, Boolean isGroupChat) {
+        Chats newChat = new Chats();
+        newChat.setGroupName(groupName);
+        newChat.setIsGroupChat(isGroupChat);
+        newChat.setCreatedAt(LocalDateTime.now());
+        Chats savedChat = chatRepository.save(newChat);
         return ResponseServiceEntity.success(savedChat.getChatId(), ErrorCodes.SUCCESS);
     }
 
@@ -84,7 +96,9 @@ public class ChatService {
             return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_NOT_MEMBER);
         }
 
-        //không được remove chủ nhóm
+        if(chatRepository.findById(chatId).orElse(null).getUserIdCreated().equals(userId)){
+            return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_MEMBER_NOT_REMOVE_OWNER);
+        }
 
         if (chatMember == null) {
             return ResponseServiceEntity.error(ErrorCodes.ERROR_USER_NOT_EXISTS);
@@ -123,10 +137,9 @@ public class ChatService {
         if (chat == null) {
             return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_NOT_FOUND);
         }
-        // chưa lưu người tạo group
-//        if (!chat.getCreatedBy().equals(userId)) {
-//            return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_NOT_FOUND);
-//        }
+        if (!chat.getUserIdCreated().equals(userId)) {
+            return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_NOT_CREATED);
+        }
         chatRepository.delete(chat);
         return ResponseServiceEntity.success("Chat deleted successfully", ErrorCodes.SUCCESS);
     }
@@ -154,4 +167,10 @@ public class ChatService {
         chatMembersRepository.save(chatMember);
         return ResponseServiceEntity.success("Member added successfully", ErrorCodes.SUCCESS);
     }
+
+    public ResponseServiceEntity<Void> deleteChatById(Long chatId) {
+        chatRepository.deleteById(chatId);
+        return ResponseServiceEntity.success(null, ErrorCodes.SUCCESS);
+    }
+
 }

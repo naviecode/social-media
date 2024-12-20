@@ -64,4 +64,12 @@ public class Chats {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public Long getUserIdCreated() {
+        return userIdCreated;
+    }
+
+    public void setUserIdCreated(Long userIdCreated) {
+        this.userIdCreated = userIdCreated;
+    }
 }

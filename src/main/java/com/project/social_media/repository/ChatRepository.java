@@ -5,6 +5,7 @@ import com.project.social_media.models.Chats;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface ChatRepository extends JpaRepository<Chats, Long> {
             "GROUP BY c.chatId " +
             "ORDER BY MAX(m.sentAt) DESC")
     List<ChatGroupWithUnreadCountDto> findChatGroupsByUserIdWithUnreadCount(@Param("userId") Long userId);
+    @Transactional
+    void deleteById(Long chatId);
 }
