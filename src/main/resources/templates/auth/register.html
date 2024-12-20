@@ -94,9 +94,13 @@
         <button class="btn btn-facebook btn-block"><i class="fab fa-facebook-f"></i> Log in with Facebook</button>
         <div class="divider">OR</div>
         <form method="post" action="/auth/register" th:object="${user}">
-            <input type="text" class="form-control" placeholder="Mobile Number or Email" th:field="*{email}" name="email">
+            <div style="text-align: left; color: red" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            <input  type="text" class="form-control" placeholder="Mobile Number or Email" th:field="*{email}" name="email">
+            <div style="text-align: left; color: red" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
             <input type="password" class="form-control" placeholder="Password" name="password" th:field="*{password}">
+            <div style="text-align: left; color: red" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
             <input type="text" class="form-control" placeholder="Full Name" name="fullname" th:field="*{fullName}">
+            <div style="text-align: left; color: red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
             <input type="text" class="form-control" placeholder="Username" name="username" th:field="*{username}">
             <button type="submit" class="btn signup-btn btn-block">Sign up</button>
         </form>

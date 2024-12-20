@@ -1,6 +1,9 @@
 package com.project.social_media.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
@@ -11,14 +14,23 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @NotBlank(message = "Username is required")
+    @Size(max = 50, message = "Username must not exceed 50 characters")
     @Column(nullable = false, unique = true, length = 50)
     private String username;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 1, message = "Password must be at least 1 characters")
     @Column(nullable = false)
     private String password;
 
+    @Email(message = "Invalid email format")
+    @Size(max = 100, message = "Email must not exceed 100 characters")
     @Column(nullable = true, unique = true, length = 100)
     private String email;
 
+    @NotBlank(message = "FullName is required")
+    @Size(max = 100, message = "Full name must not exceed 100 characters")
     @Column(nullable = true, length = 100)
     private String fullName;
 

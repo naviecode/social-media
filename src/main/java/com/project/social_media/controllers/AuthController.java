@@ -1,15 +1,18 @@
 package com.project.social_media.controllers;
 
 import com.project.social_media.Authorize.JwtUtils;
+import com.project.social_media.dto.UserLogin;
 import com.project.social_media.models.ResponseServiceEntity;
 import com.project.social_media.models.Users;
 import com.project.social_media.services.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -22,16 +25,13 @@ public class AuthController {
     private JwtUtils jwtUtils;
 
     @GetMapping("/login")
-    public String login(HttpServletRequest request) {
+    public String login(HttpServletRequest request, Model model) {
         String token = getJwtFromRequest(request);
-
-//        if ("unauthorized".equals(error)) {
-//            model.addAttribute("errorMessage", "Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
-//        }
 
         if (token != null && jwtUtils.validateJwtToken(token)) {
             return "redirect:/";
         }
+        model.addAttribute("user", new UserLogin());
 
         return "auth/login";
     }
@@ -46,10 +46,13 @@ public class AuthController {
         return "auth/register";
     }
     @PostMapping("/register")
-    public String register(@RequestParam String username,
-                           @RequestParam String password,
-                           @ModelAttribute("user") Users user,
+    public String register(@Valid @ModelAttribute("user") Users user,
+                           BindingResult bindingResult,
                            Model model) {
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("message", "Validation failed");
+            return "auth/register";
+        }
         ResponseServiceEntity<Users> result = authService.register(user);
         if(result.getErrorCode().equals("0")) {
             model.addAttribute("message", result.getMessage());
@@ -59,11 +62,15 @@ public class AuthController {
         return "auth/register";
     }
     @PostMapping("/login")
-    public String login(@RequestParam String username,
-                        @RequestParam String password,
+    public String login(@Valid @ModelAttribute("user") UserLogin user,
+                        BindingResult bindingResult,
                         HttpServletResponse response,
                         Model model) {
-        ResponseServiceEntity<String> result = authService.login(username, password);
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("message", "Validation failed");
+            return "auth/login";
+        }
+        ResponseServiceEntity<String> result = authService.login(user.getUsername(), user.getPassword());
         if(result.getErrorCode().equals("0")){
             String token = result.getData();
             Cookie  jwtCookie = new Cookie("token", token);
@@ -73,7 +80,7 @@ public class AuthController {
             response.addCookie(jwtCookie);
             return "redirect:/";
         }
-        model.addAttribute("errors", result.getMessage());
+        model.addAttribute("errors", "Tên đăng nhập hoặc mật khẩu không hợp lệ");
         return "auth/login";
     }
 
