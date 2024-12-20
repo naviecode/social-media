@@ -465,6 +465,8 @@
                 border: 1px solid #dbdbdb;
                 margin-bottom: 20px;
                 border-radius: 3px;
+                height: 700px;
+                width: 600px;
             }
             .post-header, .post-footer {
                 display: flex;
@@ -482,7 +484,7 @@
             }
             .post-image img {
                 width: 100%;
-                height: 100%;
+                height: 75%;
             }
             .post-actions {
                 display: flex;
@@ -528,6 +530,52 @@
                 border-radius: 20px;
                 outline: none;
             }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .post-carousel {
+            position: relative;
+        }
+
+        .post-nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .post-prev {
+            left: 0;
+        }
+
+        .post-next {
+            right: 0;
+        }
+
+        .post-carousel-dots {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .post-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            background-color: grey;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .post-dot.active {
+            background-color: black;
+        }
     </style>
 </head>
 <body>
@@ -994,14 +1042,6 @@
                                         ${reactionIcon}
                                         <span class="like-count">${post.reactionCount}</span>
                                     </div>
-                                    <div class="comment-container">
-                                        <i class="far fa-comment"></i>
-                                        <span class="comment-count">${post.commentCount}</span>
-                                    </div>
-                                </div>
-                                <div class="post-footer">
-                                    <img alt="Profile picture of user" height="32" src="${post.avatarUrl}" width="32"/>
-                                    <input id="comment-input-${post.postId}" placeholder="Add a comment..." type="text" onkeypress="handleCommentKeyPress(event, ${post.postId})"/>
                                 </div>
                             </div>`
                             );
@@ -1040,20 +1080,12 @@
                                         ${reactionIcon}
                                         <span class="like-count">${post.reactionCount}</span>
                                     </div>
-                                    <div class="comment-container">
-                                        <i class="far fa-comment"></i>
-                                        <span class="comment-count">${post.commentCount}</span>
-                                    </div>
                                 </div>
                                 <div class="post-create-dt" style="font-weight: 300; color: grey; padding: 0 10px;">
                                     ${formattedDate}
                                 </div>
                                 <div class="post-contents">
                                     <span>${post.fullNamePoster}</span> ${post.content}
-                                </div>
-                                <div class="post-footer">
-                                    <img alt="Profile picture of user" height="32" src="${post.avatarUrl}" width="32"/>
-                                    <input id="comment-input-${post.postId}" placeholder="Add a comment..." type="text" onkeypress="handleCommentKeyPress(event, ${post.postId})"/>
                                 </div>
                             </div>`
                             );
@@ -1163,7 +1195,32 @@
             }
         });
     });
+    function goToPostImage(dot, index) {
+        const postElement = $(dot).closest('.post');
+        const images = postElement.find('.post-carousel img');
+        images.hide();
+        images.eq(index).show();
 
+        const dots = postElement.find('.post-dot');
+        dots.removeClass('active');
+        dots.eq(index).addClass('active');
+    }
+
+    function prevPostImage(button) {
+        const postElement = $(button).closest('.post');
+        const images = postElement.find('.post-carousel img');
+        const activeIndex = images.index(images.filter(':visible'));
+        const newIndex = (activeIndex - 1 + images.length) % images.length;
+        goToPostImage(postElement.find('.post-dot').eq(newIndex), newIndex);
+    }
+
+    function nextPostImage(button) {
+        const postElement = $(button).closest('.post');
+        const images = postElement.find('.post-carousel img');
+        const activeIndex = images.index(images.filter(':visible'));
+        const newIndex = (activeIndex + 1) % images.length;
+        goToPostImage(postElement.find('.post-dot').eq(newIndex), newIndex);
+    }
 </script>
 </body>
 </html>
