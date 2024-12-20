@@ -30,6 +30,12 @@ public class Users {
     public Users() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public Users(Long userId, String fullName) {
+        this.userId = userId;
+        this.fullName = fullName;
+    }
+
     public Users(String username, String password, String email, String fullName, String avatarURL) {
         this.username = username;
         this.password = password;

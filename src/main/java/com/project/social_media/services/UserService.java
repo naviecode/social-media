@@ -18,8 +18,7 @@ public class UserService {
     @Autowired
     private UsersRepository usersRepository;
 
-//    @Autowired
-//    private DatabaseConnection databaseConnection;
+
 
     public ResponseServiceEntity<Users> getUserById(Long id) {
         Users user = usersRepository.findById(id).orElse(null);
@@ -29,6 +28,16 @@ public class UserService {
         return ResponseServiceEntity.success(user,ErrorCodes.SUCCESS);
     }
 
+    public ResponseServiceEntity<Users> getUserByUserName(String userName){
+        Users user = usersRepository.findByUsername(userName).orElse(null);
+        if(user == null) {
+            return ResponseServiceEntity.error(ErrorCodes.ERROR_USER_NOT_EXISTS);
+        }
+        return ResponseServiceEntity.success(user,ErrorCodes.SUCCESS);
+    }
+
+//    @Autowired
+//    private DatabaseConnection databaseConnection;
 
     // Sử dụng JPA Repository
 //    public Optional<Users> getUserByUsername(String username) {
