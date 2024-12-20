@@ -4,6 +4,7 @@ import com.project.social_media.dto.ChatGroupWithUnreadCountDto;
 import com.project.social_media.dto.FriendWithUsernameDto;
 import com.project.social_media.dto.UserInfoDto;
 import com.project.social_media.models.Users;
+import com.project.social_media.services.ChatService;
 import com.project.social_media.services.FriendService;
 import com.project.social_media.services.NotificationsService;
 import com.project.social_media.services.UserService;
@@ -26,6 +27,9 @@ public class UserController {
     private FriendService friendService;
 
     @Autowired
+    private ChatService chatService;
+
+    @Autowired
     private NotificationsService notificationsService;
 
     @RequestMapping("/{userId}")
@@ -35,6 +39,7 @@ public class UserController {
         model.addAttribute("userLogin", userLogin);
         model.addAttribute("userName", user.getUsername());
         model.addAttribute("notifications", notificationsService.getNotificationsByUserId(userLogin));
+        model.addAttribute("chatGroups", chatService.getChatGroupsByUserId(userId).getData());
 
         if (user != null) {
             model.addAttribute("user", user);

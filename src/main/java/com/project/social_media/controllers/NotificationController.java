@@ -87,7 +87,6 @@ public class NotificationController {
         notificationSubject.removeObserver(groupObserver);
     }
 
-    // Gửi thông báo 1-1
     @MessageMapping("/send-to-user/{username}")
     public void sendToUser(NotificationsDto notify, @org.springframework.messaging.handler.annotation.DestinationVariable String username) {
 
@@ -127,6 +126,10 @@ public class NotificationController {
                 notify.setContent(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã gửi lời mời kết bạn");
                 break;
             case "ACCEPT_FRIEND":
+                if(friendService.areFriends(Long.parseLong(notify.getAttr1()), notify.getSenderId()).getData()){
+                    notify.setContent("Đã là bạn bè");
+                    break;
+                }
                 friendService.addFriend(Long.parseLong(notify.getAttr1()) ,notify.getSenderId());
                 friendService.updateFriendStatus(Long.parseLong(notify.getAttr1()), notify.getSenderId(), "accepted");
                 friendService.updateFriendStatus(notify.getSenderId(), Long.parseLong(notify.getAttr1()), "accepted");
@@ -136,25 +139,40 @@ public class NotificationController {
                 notify.setContent(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã chấp nhận lời mời kết bạn");
                 break;
             case "CANCEL_FRIEND":
+                notify.setContent(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã từ chối kết bạn vì ghét bạn");
                 friendService.updateFriendStatus(notify.getSenderId(), Long.parseLong(notify.getAttr1()), "deny");
                 break;
             case "UNFRIEND":
+                if(!friendService.areFriends(Long.parseLong(notify.getAttr1()), notify.getSenderId()).getData()){
+                    notify.setContent("Không phải bạn bè");
+                    break;
+                }
                 Long chatIdTwoUser = chatMemberService.GetChatIdTwoUser(Long.parseLong(notify.getAttr1()), notify.getSenderId()).getData();
                 chatMemberService.deleteChatMembersByChatId(chatIdTwoUser);
                 chatService.deleteChatById(chatIdTwoUser);
                 friendService.deleteFriend(Long.parseLong(notify.getAttr1()), notify.getSenderId());
                 friendService.deleteFriend(notify.getSenderId(), Long.parseLong(notify.getAttr1()));
+                notify.setContent(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã hủy kết bạn vì không là gì của nhau");
                 break;
             default:
-                notify.setContent("Thay đổi nhóm không xác định.");
+                notify.setContent("Thay đổi không xác định.");
         }
 
         FriendObserver friendObserver = new FriendObserver(username, messagingTemplate);
         notificationSubject.addObserver(friendObserver);
-
         notificationSubject.notifyObservers(notify);
-
         notificationSubject.removeObserver(friendObserver);
+    }
+    @MessageMapping("/send-to-friends/{username}")
+    public void sendToFriends(NotificationsDto notify, @org.springframework.messaging.handler.annotation.DestinationVariable String username) {
+        Long userIdLogin = SecurityUtils.getLoggedInUserId();
+
+
+        FriendObserver friendObserver = new FriendObserver(username, messagingTemplate);
+        notificationSubject.addObserver(friendObserver);
+        notificationSubject.notifyObservers(notify);
+        notificationSubject.removeObserver(friendObserver);
+
     }
 
     @PutMapping("/update-status/{notificationId}")

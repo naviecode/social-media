@@ -9,6 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script th:inline="javascript">
+        let userLoginId = '[[${userLogin}]]';
+        let groups = [[${chatGroups}]];
+    </script>
+    <script src="/static/js/app.js"></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -607,6 +612,7 @@
         const content = "";
         const message = { senderId , content , fullName: userName, type , attr1: loginUserId};
         stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+        renderCurrentStatusFriend(message.type);
     }
 
     function sendCancelFriend(){
@@ -616,6 +622,7 @@
         const content = "";
         const message = { senderId , content , fullName: userName, type , attr1: loginUserId};
         stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+        renderCurrentStatusFriend(message.type);
     }
 
     function sendAcceptFriend(){
@@ -624,6 +631,7 @@
         const content = "";
         const message = { senderId , content , fullName: userName, type , attr1: loginUserId};
         stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+        renderCurrentStatusFriend(message.type);
     }
 
     function sendUnFriend(){
@@ -632,6 +640,7 @@
         const content = "";
         const message = { senderId , content , fullName: userName, type , attr1: loginUserId};
         stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
+        renderCurrentStatusFriend(message.type);
     }
 
     function renderNotify(){
@@ -670,15 +679,45 @@
         }
     }
 
-    function renderStatusFriend(){
+    function renderCurrentStatusFriend(type) {
+        let renderViewStatus = $('.profile-info .actions');
+        let htmlRender = "";
+        switch (type) {
+            case "ADD_FRIEND":
+                htmlRender = `<button class="following">Pending</button>`
+                break;
+            case "ACCEPT_FRIEND":
+                htmlRender = `<button class="following" onClick="sendUnFriend()">Unfriend</button>
+                                <button>
+                                    <a href="/chat">
+                                        Message
+                                    </a>
+                                </button>`
+                break;
+            case "UNFRIEND":
+                htmlRender = `
+                 <button class="following" onClick="sendAddFriend()">Add Friend</button>
+                `
+                break;
+            case "CANCEL_FRIEND":
+                htmlRender = `
+                <button class="following" onClick="sendAddFriend()">Add Friend</button>`
+                break;
+            default:
+                break;
+        }
+        renderViewStatus.html(htmlRender);
+    }
+
+    function renderStatusFriend() {
         $.ajax({
             url: '/user/PartialUserProfileStatus',
             type: 'GET',
-            data: { userId: userIdCurrent},
-            success: function(response) {
+            data: {userId: userIdCurrent},
+            success: function (response) {
                 $('#user-info-content').html(response);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('AJAX Error:', error);
                 alert('Không thể tải thông tin.');
             }
