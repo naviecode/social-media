@@ -2,8 +2,8 @@ package com.project.social_media.services;
 
 import com.project.social_media.constants.ErrorCodes;
 import com.project.social_media.models.ChatMembers;
-import com.project.social_media.models.ResponseServiceEntity;
-import com.project.social_media.models.ResponseServiceListEntity;
+import com.project.social_media.dto.ResponseServiceEntity;
+import com.project.social_media.dto.ResponseServiceListEntity;
 import com.project.social_media.models.Users;
 import com.project.social_media.repository.ChatMemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ChatMemberService {

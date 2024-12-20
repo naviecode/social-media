@@ -36,8 +36,15 @@ public class Users {
 
     private String avatarURL;
 
+
     @Column(nullable = true)
     private LocalDateTime createdAt;
+
+    @Column(nullable = true)
+    private LocalDateTime lastActive;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isActive;
 
     public Users() {
         this.createdAt = LocalDateTime.now();
@@ -55,6 +62,7 @@ public class Users {
         this.fullName = fullName;
         this.avatarURL = avatarURL;
         this.createdAt = LocalDateTime.now();
+        this.isActive = false;
     }
 
     public Long getUserId() {
@@ -111,5 +119,21 @@ public class Users {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getLastActive() {
+        return lastActive;
+    }
+
+    public void setLastActive(LocalDateTime lastActive) {
+        this.lastActive = lastActive;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 }

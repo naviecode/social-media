@@ -2,20 +2,16 @@ package com.project.social_media.services;
 
 import com.project.social_media.constants.ErrorCodes;
 import com.project.social_media.dto.UserInfoDto;
-import com.project.social_media.models.ResponseServiceEntity;
+import com.project.social_media.dto.ResponseServiceEntity;
 import com.project.social_media.models.Users;
 import com.project.social_media.repository.FriendsRepository;
 import com.project.social_media.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
-import com.project.social_media.repository.DatabaseConnection.DatabaseConnection;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,6 +60,37 @@ public class UserService {
         return users.stream()
                 .map(Users::getFullName)
                 .collect(Collectors.joining(", "));
+    }
+
+    public String getUserStatus(Long userId) {
+        Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getIsActive()) {
+            return "Online";
+        }
+
+        LocalDateTime lastActive = user.getLastActive();
+        if (lastActive == null) {
+            return "Offline for an unknown duration";
+        }
+
+        Duration duration = Duration.between(lastActive, LocalDateTime.now());
+        long minutesOffline = duration.toMinutes();
+
+        return "Offline for " + minutesOffline + " minute(s)";
+    }
+
+    public void updateActivity(Long userId) {
+        Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setLastActive(LocalDateTime.now());
+        user.setIsActive(true);
+        usersRepository.save(user);
+    }
+
+    public void markUserInactive(Long userId) {
+        Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(false);
+        usersRepository.save(user);
     }
 
 //    @Autowired

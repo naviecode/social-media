@@ -1,4 +1,4 @@
-package com.project.social_media.models;
+package com.project.social_media.dto;
 
 import com.project.social_media.constants.ErrorCodes;
 

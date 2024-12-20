@@ -3,8 +3,8 @@ package com.project.social_media.services;
 import com.project.social_media.constants.ErrorCodes;
 import com.project.social_media.dto.FriendWithUsernameDto;
 import com.project.social_media.models.Friends;
-import com.project.social_media.models.ResponseServiceEntity;
-import com.project.social_media.models.ResponseServiceListEntity;
+import com.project.social_media.dto.ResponseServiceEntity;
+import com.project.social_media.dto.ResponseServiceListEntity;
 import com.project.social_media.repository.FriendsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +29,11 @@ public class FriendService {
 
     public ResponseServiceListEntity<FriendWithUsernameDto> searchFriends(Long userId, String name){
         List<FriendWithUsernameDto> result = friendsRepository.findFriendsWithUsernameByUserId1AndName(userId, name);
+        return ResponseServiceListEntity.success(result, result.stream().count(), ErrorCodes.SUCCESS);
+    }
+
+    public ResponseServiceListEntity<FriendWithUsernameDto> getFriendByUserId(Long userId){
+        List<FriendWithUsernameDto> result = friendsRepository.getFriendByUserID(userId);
         return ResponseServiceListEntity.success(result, result.stream().count(), ErrorCodes.SUCCESS);
     }
     public ResponseServiceEntity<Boolean> areFriends(Long userIdLogin, Long userId) {

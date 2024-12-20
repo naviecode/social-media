@@ -2,7 +2,7 @@ package com.project.social_media.services;
 
 import com.project.social_media.Authorize.JwtUtils;
 import com.project.social_media.constants.ErrorCodes;
-import com.project.social_media.models.ResponseServiceEntity;
+import com.project.social_media.dto.ResponseServiceEntity;
 import com.project.social_media.models.Users;
 import com.project.social_media.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;

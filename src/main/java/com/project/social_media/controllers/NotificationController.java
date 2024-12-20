@@ -1,6 +1,7 @@
 package com.project.social_media.controllers;
 
 
+import com.project.social_media.dto.FriendWithUsernameDto;
 import com.project.social_media.dto.NotificationsDto;
 import com.project.social_media.models.Chats;
 import com.project.social_media.models.Notifications;
@@ -163,15 +164,19 @@ public class NotificationController {
         notificationSubject.notifyObservers(notify);
         notificationSubject.removeObserver(friendObserver);
     }
-    @MessageMapping("/send-to-friends/{username}")
+    @MessageMapping("/send-to-friends")
     public void sendToFriends(NotificationsDto notify, @org.springframework.messaging.handler.annotation.DestinationVariable String username) {
         Long userIdLogin = SecurityUtils.getLoggedInUserId();
+        List<FriendWithUsernameDto> result = friendService.getFriendByUserId(userIdLogin).getData();
+
+        for (FriendWithUsernameDto friend : result) {
+            FriendObserver friendObserver = new FriendObserver(friend.getUsername(), messagingTemplate);
+            notificationSubject.addObserver(friendObserver);
+            notificationSubject.notifyObservers(notify);
+            notificationSubject.removeObserver(friendObserver);
+        }
 
 
-        FriendObserver friendObserver = new FriendObserver(username, messagingTemplate);
-        notificationSubject.addObserver(friendObserver);
-        notificationSubject.notifyObservers(notify);
-        notificationSubject.removeObserver(friendObserver);
 
     }
 
