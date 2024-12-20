@@ -2,6 +2,8 @@ package com.project.social_media.services;
 
 import com.project.social_media.constants.ErrorCodes;
 import com.project.social_media.dto.ChatGroupWithUnreadCountDto;
+import com.project.social_media.dto.ResponseServiceEntity;
+import com.project.social_media.dto.ResponseServiceListEntity;
 import com.project.social_media.models.*;
 import com.project.social_media.repository.ChatMemberRepository;
 import com.project.social_media.repository.ChatRepository;

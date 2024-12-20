@@ -1,8 +1,7 @@
 package com.project.social_media.controllers;
 
 import com.project.social_media.dto.FriendWithUsernameDto;
-import com.project.social_media.models.Friends;
-import com.project.social_media.models.ResponseServiceListEntity;
+import com.project.social_media.dto.ResponseServiceListEntity;
 import com.project.social_media.services.FriendService;
 import com.project.social_media.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;

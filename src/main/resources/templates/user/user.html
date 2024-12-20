@@ -428,6 +428,36 @@
             top: 20px;
             right: 20px;
         }
+
+
+        .modal-picture.modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-picture .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%;
+        }
+
+        .modal-picture .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+
         .post-actions {
             display: flex;
             justify-content: space-evenly;
@@ -454,6 +484,7 @@
             font-size: 14px;
             font-weight: bold;
             margin-left: 5px;
+
         }
     </style>
 </head>
@@ -511,7 +542,7 @@
     </div>
     <div class="content" >
         <div class="profile-header" id="user-info-content">
-            <img alt="Profile picture" height="150" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="150"/>
+            <img alt="Profile picture" onclick="openModalImage()" style="cursor: pointer" id="profilePic" height="150" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="150"/>
             <div class="profile-info">
                 <h1 th:text="${user.getFullName()}"></h1>
                 <div class="stats">
@@ -589,6 +620,18 @@
 </div>
 
 
+<!-- Popup Modal -->
+<div id="uploadModal" class="modal-picture modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModelImage()">&times;</span>
+        <h2>Upload Profile Picture</h2>
+        <form id="uploadForm" enctype="multipart/form-data" action="/user/upload">
+            <input type="file" name="file" accept="image/*" id="file" required />
+            <button type="submit" id="uploadBtn">Upload</button>
+        </form>
+    </div>
+</div>
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script th:inline="javascript">
@@ -602,6 +645,61 @@
     let page = 0;
     const size = 10;
     let totalPostsLoaded = 0;
+
+    // Get elements
+    const modal = document.getElementById("uploadModal");
+    const profilePic = document.getElementById("profilePic");
+    const closeBtn = document.querySelector(".close");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const fileInput = document.getElementById("fileInput");
+
+    // Show modal on click
+    function openModalImage(){
+        modal.style.display = "block";
+    }
+
+    function closeModelImage(){
+        modal.style.display = "none";
+
+    }
+
+    // Close modal on outside click
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // AJAX Upload
+    uploadBtn.onclick = function () {
+        const file = fileInput.files[0];
+        if (!file) {
+            alert("Please select a file!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch("/api/profile/uploadPicture", {
+            method: "POST",
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    profilePic.src = data.filePath;
+                    modal.style.display = "none";
+                } else {
+                    alert("Upload failed: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error uploading file:", error);
+                alert("Error uploading file!");
+            });
+    };
+
 
     $(document).ready(function() {
         connectToWebSocket();

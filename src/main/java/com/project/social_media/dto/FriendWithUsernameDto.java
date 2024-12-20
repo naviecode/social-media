@@ -11,6 +11,11 @@ public class FriendWithUsernameDto {
     private Long unreadMessagesCount;
     private String lastMessageSender;
 
+    public FriendWithUsernameDto(Long userId, String userName) {
+        this.userId1 = userId;
+        this.username = userName;
+    }
+
     public FriendWithUsernameDto(Long friendId, Long userId1, Long userId2, String status, Long chatId) {
         this.friendId = friendId;
         this.userId1 = userId1;

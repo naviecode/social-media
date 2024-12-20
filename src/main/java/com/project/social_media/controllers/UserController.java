@@ -9,16 +9,30 @@ import com.project.social_media.services.FriendService;
 import com.project.social_media.services.NotificationsService;
 import com.project.social_media.services.UserService;
 import com.project.social_media.utils.SecurityUtils;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
 public class UserController {
+    @Value("${file.upload-dir}")
+    private  String UploadDir;
 
     @Autowired
     private UserService userService;
@@ -72,6 +86,35 @@ public class UserController {
     public List<Users> searchUsersByName(@RequestParam("name") String name) {
         Long userLogin = SecurityUtils.getLoggedInUserId();
         return userService.searchUsersByName(name,userLogin);
+    }
+
+    @GetMapping("/user/status/{userId}")
+    public String getUserStatus(@PathVariable Long userId) {
+        return userService.getUserStatus(userId);
+    }
+    
+    @GetMapping("/update-activity")
+    public String updateActivity(HttpSession session) {
+        Long userId = SecurityUtils.getLoggedInUserId();
+        userService.updateActivity(userId);
+        return "User activity updated";
+    }
+
+    @PostMapping("/upload")
+    @ResponseBody
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file){
+        if(file.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Chọn file");
+        }
+        try{
+            Path path = Paths.get(UploadDir + File.separator + file.getOriginalFilename());
+            Files.copy(file.getInputStream(), path);
+            return ResponseEntity.status(HttpStatus.OK).body("Upload thành công" + file.getOriginalFilename());
+
+        }catch (IOException e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload khong thanh cong");
+        }
     }
 
 }
