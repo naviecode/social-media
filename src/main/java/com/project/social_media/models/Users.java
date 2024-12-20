@@ -26,7 +26,7 @@ public class Users {
 
     @Email(message = "Invalid email format")
     @Size(max = 100, message = "Email must not exceed 100 characters")
-    @Column(nullable = true, unique = true, length = 100)
+    @Column(nullable = true, length = 100)
     private String email;
 
     @NotBlank(message = "FullName is required")

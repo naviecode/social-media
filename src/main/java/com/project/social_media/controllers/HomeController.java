@@ -1,6 +1,7 @@
 package com.project.social_media.controllers;
 
 import com.project.social_media.models.Users;
+import com.project.social_media.services.ChatService;
 import com.project.social_media.services.NotificationsService;
 import com.project.social_media.services.UserService;
 import com.project.social_media.utils.SecurityUtils;
@@ -18,6 +19,8 @@ public class HomeController {
     private UserService userService;
     @Autowired
     private NotificationsService notificationsService;
+    @Autowired
+    private ChatService chatService;
 
     @GetMapping("/")
     public String homePage(Model model) {
@@ -29,6 +32,8 @@ public class HomeController {
         model.addAttribute("notifications", notificationsService.getNotificationsByUserId(userId));
         model.addAttribute("userLoginFullName", user.getFullName());
         model.addAttribute("userLoginAvatarUrl", user.getAvatarURL());
+        model.addAttribute("chatGroups", chatService.getChatGroupsByUserId(userId).getData());
+
         return "pages/home";
     }
 }
