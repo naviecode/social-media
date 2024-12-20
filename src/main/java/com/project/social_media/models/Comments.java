@@ -18,10 +18,6 @@ public class Comments {
     private Posts post;
 
     @ManyToOne
-    @JoinColumn(name = "sharedPostId")
-    private SharedPosts sharedPost;
-
-    @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
     private Users user;
 
@@ -45,9 +41,8 @@ public class Comments {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Comments(Posts post, SharedPosts sharedPost, Users user, Comments parentComment, String content) {
+    public Comments(Posts post, Users user, Comments parentComment, String content) {
         this.post = post;
-        this.sharedPost = sharedPost;
         this.user = user;
         this.parentComment = parentComment;
         this.content = content;
@@ -72,13 +67,6 @@ public class Comments {
         this.post = post;
     }
 
-    public SharedPosts getSharedPost() {
-        return sharedPost;
-    }
-
-    public void setSharedPost(SharedPosts sharedPost) {
-        this.sharedPost = sharedPost;
-    }
 
     public Users getUser() {
         return user;

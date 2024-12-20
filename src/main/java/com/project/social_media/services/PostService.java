@@ -43,9 +43,6 @@ public class PostService {
     private CommentsRepository commentsRepository;
 
     @Autowired
-    private SharedPostsRepository sharedPostsRepository;
-
-    @Autowired
     private PostImagesRepository postImagesRepository;
 
     @Autowired
@@ -98,7 +95,6 @@ public class PostService {
                     .collect(Collectors.toList());
             long reactionCount = reactionsRepository.countByPost(post);
             long commentCount = commentsRepository.countByPost(post);
-            long shareCount = sharedPostsRepository.countByOriginalPost(post);
 
             // Check if the post is liked by the current user
             boolean isLiked = reactionsRepository.existsByPostAndUserId(post, userId);
@@ -115,7 +111,6 @@ public class PostService {
                     post.getCreatedAt(),
                     reactionCount,
                     commentCount,
-                    shareCount,
                     imagesData,
                     user.getFullName(),
                     user.getAvatarURL(),
@@ -161,7 +156,6 @@ public class PostService {
                 .collect(Collectors.toList());
         long reactionCount = reactionsRepository.countByPost(post);
         long commentCount = commentsRepository.countByPost(post);
-        long shareCount = sharedPostsRepository.countByOriginalPost(post);
 
         boolean isLiked = reactionsRepository.existsByPostAndUserId(post, userId);
 
@@ -176,7 +170,6 @@ public class PostService {
                 post.getCreatedAt(),
                 reactionCount,
                 commentCount,
-                shareCount,
                 imagesData,
                 user.getFullName(),
                 user.getAvatarURL(),

@@ -14,7 +14,6 @@ public class PostDTO {
     private LocalDateTime createdAt;
     private long reactionCount;
     private long commentCount;
-    private long shareCount;
     private List<byte[]> imagesData;
     private String fullNamePoster;
     private String avatarUrlPoster;
@@ -23,7 +22,7 @@ public class PostDTO {
     private boolean isLiked; // New field
 
     // Constructor
-    public PostDTO(Long postId, String content, Posts.Privacy privacy, String avatarUrl, LocalDateTime createdAt, long reactionCount, long commentCount, long shareCount, List<byte[]> imagesData, String fullNamePoster, String avatarUrlPoster, boolean isLiked) {
+    public PostDTO(Long postId, String content, Posts.Privacy privacy, String avatarUrl, LocalDateTime createdAt, long reactionCount, long commentCount, List<byte[]> imagesData, String fullNamePoster, String avatarUrlPoster, boolean isLiked) {
         this.postId = postId;
         this.content = content;
         this.privacy = privacy;
@@ -31,7 +30,6 @@ public class PostDTO {
         this.createdAt = createdAt;
         this.reactionCount = reactionCount;
         this.commentCount = commentCount;
-        this.shareCount = shareCount;
         this.imagesData = imagesData;
         this.fullNamePoster = fullNamePoster;
         this.avatarUrlPoster = avatarUrlPoster;
@@ -93,14 +91,6 @@ public class PostDTO {
 
     public void setCommentCount(long commentCount) {
         this.commentCount = commentCount;
-    }
-
-    public long getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(long shareCount) {
-        this.shareCount = shareCount;
     }
 
     public List<byte[]> getImagesData() {

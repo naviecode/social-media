@@ -19,9 +19,6 @@ public class Reactions {
     @JoinColumn(name = "postId")
     private Posts post;
 
-    @ManyToOne
-    @JoinColumn(name = "sharedPostId")
-    private SharedPosts sharedPost;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -31,10 +28,9 @@ public class Reactions {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Reactions(Users user, Posts post, SharedPosts sharedPost) {
+    public Reactions(Users user, Posts post) {
         this.user = user;
         this.post = post;
-        this.sharedPost = sharedPost;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -62,14 +58,6 @@ public class Reactions {
 
     public void setPost(Posts post) {
         this.post = post;
-    }
-
-    public SharedPosts getSharedPost() {
-        return sharedPost;
-    }
-
-    public void setSharedPost(SharedPosts sharedPost) {
-        this.sharedPost = sharedPost;
     }
 
     public LocalDateTime getCreatedAt() {
