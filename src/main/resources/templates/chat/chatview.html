@@ -908,14 +908,17 @@
               });
               stompClient.subscribe('/topic/groups/'+ item.chatId, function (message) {
                   const chatMessage = JSON.parse(message.body);
+                  if(chatMessage.type === "RENAME_GROUP") {
+                      changeGroupName(chatMessage);
+                      fetchFriendsSearchMainWithAjax(/*[[${oldChat}]]*/ '');
+                  }
+
                   if(chatMessage.senderId !== loginUserId){
 
                       if(chatMessage.type === "MESSAGE"){
 
                       }
-                      if(chatMessage.type === "RENAME_GROUP") {
-                          changeGroupName(chatMessage);
-                      }
+
                       if(chatMessage.type === "REMOVE_MEMBER") {
                           changeGroupRemoveMember(chatMessage);
                       }
@@ -1015,7 +1018,7 @@
                   if(response.errorCode === '0'){
                       const content = newName;
                       const type = "RENAME_GROUP";
-                      const message = { chatId, content, senderId : loginUserId , fullName, type};
+                      const message = { chatId, content, senderId : loginUserId , fullName, type, attr1: newName};
                       stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
                       closePopup_Details();
                   }else{

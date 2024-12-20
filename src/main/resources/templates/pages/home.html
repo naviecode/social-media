@@ -456,6 +456,218 @@
       flex-direction: row;
       align-items: center;
     }
+    .search-box-main{
+      width: 100%;
+      height: 100vh;
+      background-color: white;
+      max-width: 400px;
+      padding: 20px;
+      box-sizing: border-box;
+      position: absolute;
+      left: -100%;
+      transition: left 0.5s ease-in-out;
+    }
+    .search-box-main.show {
+      left: 0;
+    }
+
+    .search-box-main h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .search-box-main .search-box {
+      display: flex;
+      align-items: center;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    .search-box-main .search-box input {
+      border: none;
+      background: none;
+      outline: none;
+      flex-grow: 1;
+      font-size: 16px;
+    }
+    .search-box-main .search-box .clear-icon {
+      font-size: 16px;
+      color: #ccc;
+      cursor: pointer;
+    }
+    .search-box-main .recent {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .search-box-main .recent-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .search-box-main .recent-item img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .search-box-main .recent-item span {
+      font-size: 16px;
+    }
+    .search-box-main .no-recent {
+      font-size: 16px;
+      color: #999;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .search-box-main .toggle-button {
+      margin: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+    .search-box-main .close-button {
+      font-size: 24px;
+      color: #ccc;
+      cursor: pointer;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    .notification-panel-wrap {
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .notification-panel .header {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .notification-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .notification-item img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+    .notification-item .text {
+      flex-grow: 1;
+    }
+    .notification-item .text .title {
+      font-weight: bold;
+    }
+    .notification-item .text .subtitle {
+      color: #888;
+    }
+    .notification-item .icon {
+      color: #0095f6;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .notification-panel {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      max-width: 400px;
+      height: 100%;
+      background-color: #fff;
+      box-shadow: 2px 0 5px rgb(0 0 0 / 8%);
+      transition: left 0.3s ease;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .notification-panel.open {
+      left: 0;
+    }
+    .open-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: #0095f6;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .close-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .notification {
+      display: flex;
+      align-items: center;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #f1f1f1;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: opacity 0.3s, transform 0.3s;
+      opacity: 1;
+      transform: translateY(0);
+      z-index: 9999;
+    }
+
+    .notification.hidden {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+    }
+
+    .notification-avatar {
+      width: 50px;
+      height: 50px;
+      margin-right: 15px;
+      overflow: hidden;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .notification-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .notification-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notification-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .notification p {
+      margin: 5px 0 0;
+      font-size: 14px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
@@ -464,17 +676,17 @@
     <h1>
       Media Social
     </h1>
-    <a class="active" href="#">
+    <a class="active" href="/">
       <i class="fas fa-home">
       </i>
       Home
     </a>
-    <a href="#">
-      <i class="fas fa-search">
+    <a style="cursor: pointer" onclick="toggleContainer()">
+      <i class="fas fa-search" >
       </i>
       Search
     </a>
-    <a href="#">
+    <a href="/chat">
       <i class="fas fa-envelope">
       </i>
       Messages
@@ -484,21 +696,46 @@
       </i>
       Create
     </a>
-    <a class="notifications" href="#">
+    <a class="notifications" style="cursor: pointer" onclick="toggleNotifications()">
       <i class="fas fa-heart">
       </i>
       Notifications
     </a>
-    <a href="#">
+    <a th:href="@{/user/{userLogin}(userLogin=${userLogin})}">
       <i class="fas fa-user-circle">
       </i>
       Profile
     </a>
-    <a href="#">
-      <i class="fas fa-bars">
-      </i>
-      More
-    </a>
+  </div>
+  <div class="search-box-main" id="search-box-main">
+      <span class="close-button" onclick="toggleContainer()">&times;</span>
+    <h1>Search</h1>
+    <div class="search-box">
+      <input type="text" oninput="debounceSearchAllUser(event)" placeholder="Search">
+      <span class="clear-icon">&times;</span>
+    </div>
+    <div class="recent">Recent</div>
+    <div class="recent-item-render">
+    </div>
+  </div>
+  <div class="notification-panel" id="notificationPanel">
+    <button class="close-button" onclick="toggleNotifications()">
+      &times;
+    </button>
+    <div class="notification-panel-wrap">
+      <div class="header">
+        Notifications
+      </div>
+      <div id="notification-item-render">
+        <div class="notification-item" th:each="notify : ${notifications}">
+          <img alt="Profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
+          <div class="text">
+            <div class="title" th:text="${notify.getContent()}"></div>
+            <div class="subtitle" th:text="${notify.getCreatedAt()}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="main-content">
     <div class="stories">
@@ -516,63 +753,16 @@
     <div id="loading" style="display: none;">Loading...</div>
   </div>
   <div class="suggestions">
-    <div class="user-info">
-      <a>
+    <div class="user-info" style="display: flex; align-items: center; justify-content: space-between">
+      <a th:href="@{/user/{userLogin}(userLogin=${userLogin})}">
         <img alt="Profile picture of user Quang Son" height="32" th:src="${userLoginAvatarUrl}" width="32"/>
         <span th:text="${userLoginFullName}"></span>
-        <button id="switch-button">
-          Log out
-        </button>
       </a>
+
+      <button id="switch-button">
+        Log out
+      </button>
     </div>
-    <h4>
-      Suggested for you
-    </h4>
-    <a href="#">
-      <img alt="Profile picture of user instagram" height="32" src="https://storage.googleapis.com/a1aa/image/VzfP9zRfQLgi30emYYhESMs1y8fb7MqwMErtHwI7zibiG7vPB.jpg" width="32"/>
-      <span>
-      instagram
-     </span>
-      <button>
-        Follow
-      </button>
-    </a>
-    <a href="#">
-      <img alt="Profile picture of user just.morephine" height="32" src="https://storage.googleapis.com/a1aa/image/QFlr99fHHvRJWSryepRf6L2cOtD6spf0uee9cGZTOg7DZsf9JA.jpg" width="32"/>
-      <span>
-      just.morephine
-     </span>
-      <button>
-        Follow
-      </button>
-    </a>
-    <a href="#">
-      <img alt="Profile picture of user clean.desk.setup" height="32" src="https://storage.googleapis.com/a1aa/image/zIGRfpqD3az9AyBkEHjDw6uUNlTDA3e6x3ffo8BB5IZqF7vPB.jpg" width="32"/>
-      <span>
-      clean.desk.setup
-     </span>
-      <button>
-        Follow
-      </button>
-    </a>
-    <a href="#">
-      <img alt="Profile picture of user nunu__s2" height="32" src="https://storage.googleapis.com/a1aa/image/lAqZuU7b1EYMGla0jXGrTv9Sre4yxBQeyncIKBtMvZwxxe3nA.jpg" width="32"/>
-      <span>
-      nunu__s2
-     </span>
-      <button>
-        Follow
-      </button>
-    </a>
-    <a href="#">
-      <img alt="Profile picture of user thanhtrann__" height="32" src="https://storage.googleapis.com/a1aa/image/FslJ5OSmBfRyYKO3bJGCfdL6nLBBVGSfYOUtUot8zvLMj93nA.jpg" width="32"/>
-      <span>
-      thanhtrann__
-     </span>
-      <button>
-        Follow
-      </button>
-    </a>
   </div>
 </div>
 <div id="popup-container">
@@ -585,7 +775,66 @@
   </div>
   <div class="comments"></div>
 </div>
+
+<div id="notification-container" class="notification hidden">
+  <div class="notification-avatar">
+    <img id="notification-avatar" src="" alt="Avatar">
+  </div>
+  <div class="notification-content">
+    <h4 class="notification-title">Thông báo</h4>
+    <p id="notification-message">Bạn có tin nhắn mới</p>
+  </div>
+</div>
+
 <script>
+  let timeOutThird;
+
+  const debounceSearchAllUser = debounceAll((event) => {
+    const input = event.target.value;
+    fetchAllUsersWithAjax(input);
+  }, 1000);
+
+  function toggleContainer() {
+    let container = document.getElementById('search-box-main');
+    container.classList.toggle('show');
+  }
+  function debounceAll(func, delay) {
+    return function (...args) {
+      clearTimeout(timeOutThird);
+      timeOutThird = setTimeout(() => func.apply(this, args), delay);
+    };
+  }
+  function toggleNotifications() {
+    let panel = document.getElementById('notificationPanel');
+    if (panel.classList.contains('open')) {
+      panel.classList.remove('open');
+    } else {
+      panel.classList.add('open');
+      renderNotify();
+    }
+  }
+  function fetchAllUsersWithAjax(name) {
+    $.ajax({
+      url: '/user/search',
+      type: 'GET',
+      data: { name: name},
+      success: function(response) {
+        let recentItemsHtml = response.map(user => `
+                        <a style="text-decoration: none; color:black; " href="/user/${user.userId}">
+                            <div class="recent-item">
+                                <img alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
+                                <span>${user.fullName}</span>
+                            </div>
+                        </a>
+                    `).join('');
+        $('.recent-item-render').html(recentItemsHtml);
+      },
+      error: function (xhr, status, error) {
+        console.error('AJAX Error:', error);
+        alert('Không thể tải bạn bè.');
+      }
+    });
+  }
   document.getElementById('create-post-btn').addEventListener('click', function (e) {
     e.preventDefault();
 

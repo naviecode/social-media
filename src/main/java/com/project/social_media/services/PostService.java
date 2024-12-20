@@ -129,7 +129,7 @@ public class PostService {
         Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Posts post = postsRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
 
-        Reactions reaction = new Reactions(user, post, null);
+        Reactions reaction = new Reactions(user, post);
         reactionsRepository.save(reaction);
 
         PostDTO postDTO = getPostDTO(post, userId);
