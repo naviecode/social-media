@@ -8,6 +8,7 @@ public enum ErrorCodes {
     ERROR_CHAT_MESSAGE_EXISTS("201", "Nguoi dung khong trong cuoc trong chuyen"),
 
     ERROR_USER_NOT_EXISTS("301", "Không tìm thấy người dùng"),
+    ERROR_USER_FILE_EMPTY("302", "File không được để trống"),
 
     ERROR_CHAT_ADD_GROUP_SIZE("401", "Một group phải có ít nhất 3 thành viên"),
     ERROR_CHAT_NOT_FOUND("402", "Không tìm thấy cuộc trò chuyện"),
@@ -19,9 +20,7 @@ public enum ErrorCodes {
     ERROR_CHAT_MEMBER_NOT_EXISTS_FRIEND("502", "Người dùng không có trong danh sách bạn bè"),
 
 
-
-
-
+    ERRORS("-1", "Lỗi không xác định"),
     SUCCESS("0", "Thành công");
 
     private final String code;

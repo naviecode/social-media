@@ -1,6 +1,7 @@
 package com.project.social_media.controllers;
 
 
+import com.project.social_media.constants.ErrorCodes;
 import com.project.social_media.dto.*;
 import com.project.social_media.models.*;
 import com.project.social_media.services.*;
@@ -44,10 +45,11 @@ public class ChatController {
         Long userId = SecurityUtils.getLoggedInUserId();
         Users user = userService.getUserById(userId).getData();
         List<FriendWithUsernameDto> lstFriends = friendService.getFriendsWithUsernameByUserId1(userId, "").getData();
+        List<FriendWithUsernameDto> noLstFriends = friendService.getFindNonFriendsWithUsernameByUserId1(userId, "").getData();
         List<ChatGroupWithUnreadCountDto> chatGroups = chatService.getChatGroupsByUserId(userId).getData();
 
-
         model.addAttribute("friends", lstFriends);
+        model.addAttribute("noFriends", noLstFriends);
         model.addAttribute("chatGroups", chatGroups);
         model.addAttribute("userLogin", userId);
         model.addAttribute("fullName", user.getFullName());
@@ -63,17 +65,17 @@ public class ChatController {
         return result.getData();
     }
 
-
-
     @GetMapping("/PartialChatListFriend")
     public String PartialChatListFriend(@RequestParam("name") String name, Model model){
         Long userId = SecurityUtils.getLoggedInUserId();
         Users user = userService.getUserById(userId).getData();
         List<FriendWithUsernameDto> lstFriends = friendService.getFriendsWithUsernameByUserId1(userId, name).getData();
         List<ChatGroupWithUnreadCountDto> chatGroups = chatService.getChatGroupsByUserId(userId).getData();
+        List<FriendWithUsernameDto> noLstFriends = friendService.getFindNonFriendsWithUsernameByUserId1(userId, "").getData();
 
-        model.addAttribute("fullName", user.getFullName());
+        model.addAttribute("userLogin", user);
         model.addAttribute("friends", lstFriends);
+        model.addAttribute("noFriends", noLstFriends);
         model.addAttribute("chatGroups", chatGroups);
         model.addAttribute("oldChat", name);
         return "partial/chat_list_friend";
@@ -85,6 +87,7 @@ public class ChatController {
                                            Model model){
         Long userId_1_Long = SecurityUtils.getLoggedInUserId();
         List<Users> lstMembmer = new ArrayList<Users>();
+
         if(chatId == null || chatId.isEmpty()){
             return "partial/chat_message_friend_empty";
         }
@@ -99,9 +102,9 @@ public class ChatController {
             Long userId_2_Long = Long.parseLong(userId);
             Users friend = userService.getUserById(userId_2_Long).getData();
             model.addAttribute("chatName", friend.getFullName());
+            model.addAttribute("chatAvatar", friend.getAvatarURL());
             messagesService.markMessagesAsReadByChatIdAndSenderId(chatId_Long, userId_1_Long);
             lstMembmer.add(friend);
-
         }
         else{
             lstMembmer.addAll(chatMemberService.getUsersByChatId(chatId_Long,userId_1_Long).getData());
@@ -112,6 +115,7 @@ public class ChatController {
         model.addAttribute("userIdLogin", userId_1_Long);
         model.addAttribute("userIdReceive", userId);
         model.addAttribute("chatId", chatId_Long);
+        model.addAttribute("chat", chat);
         List<MessageWithSenderNameDto> messages = messagesService.GetAllMessagesByChatId(chatId_Long).getData();
         model.addAttribute("messageList", messages);
         model.addAttribute("members", lstMembmer);
@@ -128,6 +132,20 @@ public class ChatController {
         String groupName = userService.getUserNamesByIds(userIds);
         ResponseServiceEntity<Long> result = chatService.createGroupChat(userIds, groupName);
         return result;
+    }
+
+    @PostMapping("createChat")
+    @ResponseBody
+    public ResponseServiceEntity<String> createChat(@RequestParam("user_id") Long userId) {
+        Long userLogin = SecurityUtils.getLoggedInUserId();
+        Long chatIdTwoUser = chatMemberService.GetChatIdTwoUser(userLogin, userId).getData();
+        if(chatIdTwoUser != null){
+            return ResponseServiceEntity.success("Đã được tạo nhom chat", ErrorCodes.SUCCESS);
+        }
+        Long chatId = chatService.insertChat(null, false).getData();
+        chatMemberService.insertChatMember(chatId, userLogin);
+        chatMemberService.insertChatMember(chatId, userId);
+        return ResponseServiceEntity.success("Tạo thành công", ErrorCodes.SUCCESS);
     }
 
     @PostMapping("/changeGroupName")

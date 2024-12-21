@@ -16,6 +16,9 @@ public class Notifications {
     @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "sender_id")
+    private Long senderId;
+
     // ID của nhóm (dùng cho thông báo nhóm)
     @Column(name = "group_id")
     private Long groupId;
@@ -43,13 +46,14 @@ public class Notifications {
     public Notifications() {}
 
     // Parameterized constructor
-    public Notifications(Long userId, Long groupId, String content, String notificationType) {
+    public Notifications(Long userId, Long senderId, Long groupId, String content, String notificationType) {
         this.userId = userId;
         this.groupId = groupId;
         this.content = content;
         this.notificationType = notificationType;
         this.isRead = false;
         this.createdAt = LocalDateTime.now();
+        this.senderId = senderId;
     }
 
     // Getters and Setters
@@ -117,6 +121,11 @@ public class Notifications {
         this.updatedAt = updatedAt;
     }
 
-
+    public Long getSenderId() {
+        return senderId;
+    }
+    public void setSenderId(Long senderId) {
+        this.senderId = senderId;
+    }
 }
 

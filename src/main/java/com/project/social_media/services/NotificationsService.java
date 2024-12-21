@@ -1,5 +1,6 @@
 package com.project.social_media.services;
 
+import com.project.social_media.dto.NotificationsDto;
 import com.project.social_media.models.Notifications;
 import com.project.social_media.repository.NotificationsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class NotificationsService {
         notificationsRepository.updateNotificationStatus(notificationId, isRead);
     }
 
-    public List<Notifications> getNotificationsByUserId(Long userId) {
+    public List<NotificationsDto> getNotificationsByUserId(Long userId) {
         return notificationsRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
     public void updateNotificationStatusByUserId(Long userId, Boolean isRead) {

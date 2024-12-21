@@ -147,7 +147,6 @@
     .suggestions {
       width: 300px;
       padding: 20px;
-      box-sizing: border-box;
     }
     .suggestions img {
       width: 100%;
@@ -741,10 +740,21 @@
       </div>
       <div id="notification-item-render">
         <div class="notification-item" th:each="notify : ${notifications}">
-          <img alt="Profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
-          <div class="text">
-            <div class="title" th:text="${notify.getContent()}"></div>
-            <div class="subtitle" th:text="${notify.getCreatedAt()}"></div>
+          <div th:if="${notify.getNotifyType().equals('personal')}">
+            <a th:href="@{/user/{senderId}(senderId=${notify.senderId})}" style="display: flex; text-decoration: none">
+              <img alt="Profile picture" height="40" th:src="${notify.getAvatarUrl() != null ? '/static/files/' + notify.getAvatarUrl(): '/static/files/empty_image.png'}" width="40"/>
+              <div class="text">
+                <div class="title" th:text="${notify.getContent()}"></div>
+                <div class="subtitle" th:text="${notify.getCreatedAt()}"></div>
+              </div>
+            </a>
+          </div>
+          <div th:if="${!notify.getNotifyType().equals('personal')}">
+            <img alt="Profile picture" height="40" th:src="${notify.getAvatarUrl() != null ? '/static/files/' + notify.getAvatarUrl(): '/static/files/empty_image.png'}" width="40"/>
+            <div class="text">
+              <div class="title" th:text="${notify.getContent()}"></div>
+              <div class="subtitle" th:text="${notify.getCreatedAt()}"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -768,11 +778,10 @@
   <div class="suggestions">
     <div class="user-info" style="display: flex; align-items: center; justify-content: space-between">
       <a th:href="@{/user/{userLogin}(userLogin=${userLogin})}">
-        <img alt="Profile picture of user Quang Son" height="32" th:src="${userLoginAvatarUrl}" width="32"/>
+        <img alt="User profile picture" height="40" th:src="${userLoginAvatarUrl != null ? '/static/files/' + userLoginAvatarUrl: '/static/files/empty_image.png'}"  width="40"/>
         <span th:text="${userLoginFullName}"></span>
       </a>
-
-      <button id="switch-button">
+      <button class="btn btn-info" id="switch-button">
         Log out
       </button>
     </div>
@@ -833,13 +842,15 @@
       data: { name: name},
       success: function(response) {
         let recentItemsHtml = response.map(user => `
-                        <a style="text-decoration: none; color:black; " href="/user/${user.userId}">
-                            <div class="recent-item">
-                                <img alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
-                                <span>${user.fullName}</span>
-                            </div>
-                        </a>
-                    `).join('');
+                    <a style="text-decoration: none; color:black;" href="/user/${user.userId}">
+                        <div class="recent-item">
+                            <img alt="User profile picture" height="40"
+                                src="${user.avatarURL ? '/static/files/' + user.avatarURL : '/static/files/empty_image.png'}"
+                                width="40"/>
+                            <span>${user.fullName}</span>
+                        </div>
+                    </a>
+                `).join('');
         $('.recent-item-render').html(recentItemsHtml);
       },
       error: function (xhr, status, error) {

@@ -223,4 +223,9 @@ public class PostService {
 
         return postDTOs;
     }
+
+    public long countPostsByUserId(Long userId) {
+        return postsRepository.countPostsByUserId(userId);
+    }
+
 }

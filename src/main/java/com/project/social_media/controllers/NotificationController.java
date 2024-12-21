@@ -106,7 +106,7 @@ public class NotificationController {
                 }
                 if(!friendService.hasPendingFriendRequest(Long.parseLong(notify.getAttr1()),notify.getSenderId()).getData())
                 {
-                    Notifications notifications = new Notifications(user.getUserId(),null  , userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã gửi lời mời kết bạn", "personal");
+                    Notifications notifications = new Notifications(user.getUserId(), Long.parseLong(notify.getAttr1()) ,null  , userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã gửi lời mời kết bạn", "personal");
                     friendService.addFriend(Long.parseLong(notify.getAttr1()) ,notify.getSenderId());
                     notificationsService.insertNotification(notifications);
                     notify.setContent("Bạn có lời mời kết bạn đang chờ duyệt");
@@ -124,6 +124,9 @@ public class NotificationController {
                     chatMemberService.insertChatMember(chatId, notify.getSenderId());
                     break;
                 }
+                notify.setNotifyType("personal");
+                notify.setAvatarUrl(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getAvatarURL());
+                notify.setSenderId(Long.parseLong(notify.getAttr1()));
                 notify.setContent(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã gửi lời mời kết bạn");
                 break;
             case "ACCEPT_FRIEND":
@@ -134,9 +137,13 @@ public class NotificationController {
                 friendService.addFriend(Long.parseLong(notify.getAttr1()) ,notify.getSenderId());
                 friendService.updateFriendStatus(Long.parseLong(notify.getAttr1()), notify.getSenderId(), "accepted");
                 friendService.updateFriendStatus(notify.getSenderId(), Long.parseLong(notify.getAttr1()), "accepted");
-                Long chatId = chatService.insertChat(null, false).getData();
-                chatMemberService.insertChatMember(chatId, Long.parseLong(notify.getAttr1()));
-                chatMemberService.insertChatMember(chatId, notify.getSenderId());
+                Long chatIdTwoUser = chatMemberService.GetChatIdTwoUser(Long.parseLong(notify.getAttr1()), notify.getSenderId()).getData();
+                if(chatIdTwoUser == null){
+                    Long chatId = chatService.insertChat(null, false).getData();
+                    chatMemberService.insertChatMember(chatId, Long.parseLong(notify.getAttr1()));
+                    chatMemberService.insertChatMember(chatId, notify.getSenderId());
+                }
+
                 notify.setContent(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã chấp nhận lời mời kết bạn");
                 break;
             case "CANCEL_FRIEND":
@@ -148,9 +155,6 @@ public class NotificationController {
                     notify.setContent("Không phải bạn bè");
                     break;
                 }
-                Long chatIdTwoUser = chatMemberService.GetChatIdTwoUser(Long.parseLong(notify.getAttr1()), notify.getSenderId()).getData();
-                chatMemberService.deleteChatMembersByChatId(chatIdTwoUser);
-                chatService.deleteChatById(chatIdTwoUser);
                 friendService.deleteFriend(Long.parseLong(notify.getAttr1()), notify.getSenderId());
                 friendService.deleteFriend(notify.getSenderId(), Long.parseLong(notify.getAttr1()));
                 notify.setContent(userService.getUserById(Long.parseLong(notify.getAttr1())).getData().getFullName() + " đã hủy kết bạn vì không là gì của nhau");
@@ -175,9 +179,6 @@ public class NotificationController {
             notificationSubject.notifyObservers(notify);
             notificationSubject.removeObserver(friendObserver);
         }
-
-
-
     }
 
     @PutMapping("/update-status/{notificationId}")
@@ -191,7 +192,7 @@ public class NotificationController {
     }
 
     @GetMapping("/user")
-    public List<Notifications> getUserNotifications() {
+    public List<NotificationsDto> getUserNotifications() {
         Long userId = SecurityUtils.getLoggedInUserId();
         return notificationsService.getNotificationsByUserId(userId);
     }
