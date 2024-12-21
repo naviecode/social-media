@@ -1,7 +1,9 @@
 package com.project.social_media.controllers;
 
+import com.project.social_media.constants.ErrorCodes;
 import com.project.social_media.dto.ChatGroupWithUnreadCountDto;
 import com.project.social_media.dto.FriendWithUsernameDto;
+import com.project.social_media.dto.ResponseServiceEntity;
 import com.project.social_media.dto.UserInfoDto;
 import com.project.social_media.models.Users;
 import com.project.social_media.services.*;
@@ -21,9 +23,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/user")
@@ -54,7 +58,6 @@ public class UserController {
         model.addAttribute("userName", user.getUsername());
         model.addAttribute("notifications", notificationsService.getNotificationsByUserId(userLogin));
         model.addAttribute("chatGroups", chatService.getChatGroupsByUserId(userId).getData());
-        model.addAttribute("postCount", postService.countPostsByUserId(userId));
 
         if (user != null) {
             model.addAttribute("user", user);
@@ -69,7 +72,6 @@ public class UserController {
     public String PartialChatListFriend(@RequestParam("userId") Long userId, Model model){
         UserInfoDto user = userService.getUserInfo(userId).getData();
         Long userLogin = SecurityUtils.getLoggedInUserId();
-        model.addAttribute("areFriends", friendService.areFriends(userLogin, userId).getData());
         String statusFriend = friendService.getFriendStatus(userId, userLogin).getData();
         String existStatus = friendService.getFriendStatus(userLogin, userId).getData();
         model.addAttribute("statusFriend", statusFriend);
@@ -104,17 +106,31 @@ public class UserController {
 
     @PostMapping("/upload")
     @ResponseBody
-    public String uploadFile(@RequestParam("file") MultipartFile file){
+    public ResponseServiceEntity<String> uploadFile(@RequestParam("file") MultipartFile file){
         if(file.isEmpty()){
-            return "Chọn file";
+            return ResponseServiceEntity.error(ErrorCodes.ERROR_USER_FILE_EMPTY);
         }
         try{
-            Path path = Paths.get(UploadDir + File.separator + file.getOriginalFilename());
+            String uniqueKey = UUID.randomUUID().toString();
+            String newFileName = uniqueKey + "_" + file.getOriginalFilename();
+            Path path = Paths.get(UploadDir + File.separator + newFileName);
             Files.copy(file.getInputStream(), path);
-            return "redirect:/user/" + SecurityUtils.getLoggedInUserId();
+            String fileNameSuccess = userService.saveAvatarUrl(SecurityUtils.getLoggedInUserId(), newFileName).getData();
+
+            String uploadDir = "uploads";
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdir(); // Tạo thư mục nếu nó chưa tồn tại
+            }
+            // Tạo đường dẫn đầy đủ cho file
+            Path path2 = Paths.get(directory.getAbsolutePath() + File.separator + newFileName);
+            // Sao chép file tới thư mục upload
+            Files.copy(file.getInputStream(), path2, StandardCopyOption.REPLACE_EXISTING);
+
+            return ResponseServiceEntity.success(fileNameSuccess, ErrorCodes.SUCCESS);
         }catch (IOException e){
             e.printStackTrace();
-            return "redirect:/home";
+            return ResponseServiceEntity.error(ErrorCodes.ERRORS);
         }
 
     }

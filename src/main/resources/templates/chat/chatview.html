@@ -882,8 +882,24 @@
       function subscribeChat() {
           /*<![CDATA[*/
           let items = [[${friends}]];
+          let noFriend = [[${noFriends}]];
           let groups = [[${chatGroups}]];
           items.forEach(function(item) {
+              stompClient.subscribe('/topic/chat/'+ item.chatId, (message) => {
+                  const chatMessage = JSON.parse(message.body);
+                  console.log("Received message: ", chatMessage);
+
+                  //Neu dang trong boxchat thi cap nhap da doc tin nhan
+                  if(chatMessage.chatId == chatId && chatMessage.senderId != [[${userLogin}]]){
+                      updateIsRead(chatMessage.chatId, [[${userLogin}]]);
+                  }
+                  //render lai danh sach ban be de hien tin nhan moi nhat
+                  fetchFriendsSearchMainWithAjax(/*[[${oldChat}]]*/ '');
+                  displayMessage(chatMessage, false);
+
+              });
+          });
+          noFriend.forEach(function(item) {
               stompClient.subscribe('/topic/chat/'+ item.chatId, (message) => {
                   const chatMessage = JSON.parse(message.body);
                   console.log("Received message: ", chatMessage);
@@ -1041,6 +1057,7 @@
                       const type = "REMOVE_MEMBER";
                       const message = { chatId, content, senderId : loginUserId , fullName, type ,attr1: userId};
                       stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
+                      alert("Xóa thành viên thành công");
                   }else{
                       alert(response.message);
                   }
@@ -1063,6 +1080,7 @@
                       const message = { chatId, content, senderId : loginUserId , fullName, type};
                       stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
                       changeGroupRemoveMember();
+                      alert("Rời khỏi nhóm thành công");
                   }else{
                       alert(response.message);
                   }
@@ -1085,6 +1103,7 @@
                       const type = "DELETE_GROUP";
                       const message = { chatId, content, senderId : loginUserId , fullName, type};
                       stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
+                      alert("Xóa nhóm thành công");
                   }else{
                       alert(response.message);
                   }
@@ -1108,7 +1127,7 @@
                       const message = { chatId, content, senderId : loginUserId , fullName, type, attr1};
                       stompClient.send("/app/send-to-group/" + chatId, {}, JSON.stringify(message));
                       stompClient.send("/app/send-to-user/" + userName, {}, JSON.stringify(message));
-
+                      alert("Thêm thành viên vào nhóm thành công");
                   }else{
                       alert(response.message);
                   }
@@ -1311,13 +1330,15 @@
               data: { name: name},
               success: function(response) {
                   let recentItemsHtml = response.map(user => `
-                        <a style="text-decoration: none; color:black; " href="/user/${user.userId}">
-                            <div class="recent-item">
-                                <img alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
-                                <span>${user.fullName}</span>
-                            </div>
-                        </a>
-                    `).join('');
+                    <a style="text-decoration: none; color:black;" href="/user/${user.userId}">
+                        <div class="recent-item">
+                            <img alt="User profile picture" height="40"
+                                src="${user.avatarURL ? '/static/files/' + user.avatarURL : '/static/files/empty_image.png'}"
+                                width="40"/>
+                            <span>${user.fullName}</span>
+                        </div>
+                    </a>
+                `).join('');
                   $('.recent-item-render').html(recentItemsHtml);
               },
               error: function (xhr, status, error) {
@@ -1453,10 +1474,11 @@
       }
 
 
-      let action = "leave";
+      let actionCurent = "";
       function showWarningPopup(action) {
           let popupWarning = document.getElementById('popupWarning');
           let popupWarningHeader = document.getElementById('popupWarningHeader');
+          actionCurent = action;
           if (action === 'leave') {
               action = "leave";
               popupWarningHeader.innerText = 'Are you sure you want to leave the chat?';
@@ -1473,9 +1495,9 @@
       }
 
       function confirmAction() {
-          if(action === "delete"){
+          if(actionCurent === "delete"){
                 deleteChat();
-          }else if(action === "leave"){
+          }else if(actionCurent === "leave"){
                 leaveGroup();
           }else{
               alert("Lỗi")

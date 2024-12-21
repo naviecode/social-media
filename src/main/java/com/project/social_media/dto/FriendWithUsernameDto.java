@@ -8,6 +8,7 @@ public class FriendWithUsernameDto {
     private String fullName;
     private Long chatId;
     private String username;
+    private String avatarUrl;
     private Long unreadMessagesCount;
     private String lastMessageSender;
 
@@ -32,7 +33,7 @@ public class FriendWithUsernameDto {
         this.fullName = fullName;
     }
 
-    public FriendWithUsernameDto(Long friendId, Long userId1, Long userId2, String status, String fullName, Long chatId, String username, Long unreadMessagesCount, String lastMessageSender) {
+    public FriendWithUsernameDto(Long friendId, Long userId1, Long userId2, String status, String fullName, Long chatId, String username, String avatarUrl, Long unreadMessagesCount, String lastMessageSender) {
         this.friendId = friendId;
         this.userId1 = userId1;
         this.userId2 = userId2;
@@ -42,6 +43,7 @@ public class FriendWithUsernameDto {
         this.username = username;
         this.unreadMessagesCount = unreadMessagesCount;
         this.lastMessageSender = lastMessageSender;
+        this.avatarUrl = avatarUrl;
     }
 
     public Long getFriendId() {
@@ -101,5 +103,10 @@ public class FriendWithUsernameDto {
     public void setLastMessageSender(String lastMessageSender) {
         this.lastMessageSender = lastMessageSender;
     }
-
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
 }

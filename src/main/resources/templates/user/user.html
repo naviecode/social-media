@@ -449,7 +449,7 @@
             margin: auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 30%;
+            width: 20%;
         }
 
         .modal-picture .close {
@@ -632,39 +632,7 @@
     </div>
     <div class="content" >
         <div class="profile-header" id="user-info-content">
-            <img alt="Profile picture" onclick="openModalImage()" style="cursor: pointer" id="profilePic" height="150" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="150"/>
-            <div class="profile-info">
-                <h1 th:text="${user.getFullName()}"></h1>
-                <div class="stats">
-                    <div>
-                     <span th:text="${postCount}">
-                    </span>
-                        posts
-                    </div>
-                    <div>
-                        <span th:text="${user.getNumberOfFriends()}"></span>
-                        Friends
-                    </div>
-                </div>
-                <div class="actions" th:if="${userId != userLogin}">
 
-                    <button class="following" th:if="${(statusFriend == null || statusFriend == '') && (existStatus == null || existStatus == '')}" onclick="sendAddFriend()">Add Friend</button>
-                    <button class="following" th:if="${existStatus == 'pending'}">Pending</button>
-                    <button class="following" th:if="${statusFriend == 'accepted'}">Friend</button>
-                    <button class="following" th:if="${statusFriend == 'accepted'}" onclick="sendUnFriend()">Unfriend</button>
-                    <div th:if="${statusFriend == 'pending'}">
-                        <button class="following"  onclick="sendAcceptFriend()">Accpet</button>
-                        <button class="following"  onclick="sendCancelFriend()">Deny</button>
-                    </div>
-
-
-                    <button th:if="${areFriends}">
-                        <a href="/chat">
-                            Message
-                        </a>
-                    </button>
-                </div>
-            </div>
         </div>
         <div class="tabs">
             <div class="active">
@@ -672,7 +640,6 @@
             </div>
         </div>
         <div class="main-content" id="post-container">
-            <!-- Posts will be appended here -->
         </div>
     </div>
     <div class="notification-panel" id="notificationPanel">
@@ -685,10 +652,21 @@
             </div>
             <div id="notification-item-render">
                 <div class="notification-item" th:each="notify : ${notifications}">
-                    <img alt="Profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
-                    <div class="text">
-                        <div class="title" th:text="${notify.getContent()}"></div>
-                        <div class="subtitle" th:text="${notify.getCreatedAt()}"></div>
+                    <div th:if="${notify.getNotifyType().equals('personal')}">
+                        <a th:href="@{/user/{senderId}(senderId=${notify.senderId})}" style="display: flex; text-decoration: none">
+                            <img alt="Profile picture" height="40" th:src="${notify.getAvatarUrl() != null ? '/static/files/' + notify.getAvatarUrl(): '/static/files/empty_image.png'}" width="40"/>
+                            <div class="text">
+                                <div class="title" th:text="${notify.getContent()}"></div>
+                                <div class="subtitle" th:text="${notify.getCreatedAt()}"></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div th:if="${!notify.getNotifyType().equals('personal')}">
+                        <img alt="Profile picture" height="40" th:src="${notify.getAvatarUrl() != null ? '/static/files/' + notify.getAvatarUrl(): '/static/files/empty_image.png'}" width="40"/>
+                        <div class="text">
+                            <div class="title" th:text="${notify.getContent()}"></div>
+                            <div class="subtitle" th:text="${notify.getCreatedAt()}"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -712,9 +690,9 @@
     <div class="modal-content">
         <span class="close" onclick="closeModelImage()">&times;</span>
         <h2>Upload Profile Picture</h2>
-        <form id="uploadForm" method="post"  enctype="multipart/form-data" action="/user/upload">
-            <input type="file" name="file" accept="image/*" id="file" required />
-            <button type="submit" id="uploadBtn">Upload</button>
+        <form id="uploadForm" >
+            <input type="file" name="file" accept="image/*" id="fileUploadInput" required />
+            <button onclick="uploadFileClick()">Upload</button>
         </form>
     </div>
 </div>
@@ -757,23 +735,30 @@
         }
     }
 
+
     $(document).ready(function() {
+        const userId = /*[[${userId}]]*/ 'defaultUser';
         connectToWebSocket();
         renderStatusFriend();
-        loadUserPosts(userIdCurrent);
+        loadUserPosts(userId);
     });
+
     function connectToWebSocket() {
+        console.log("connecting sonnq")
         const socket = new SockJS('/chat');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, () => {
-
             stompClient.subscribe('/user/queue/notifications', function (message) {
                 const chatMessage = JSON.parse(message.body);
+                console.log(chatMessage);
+
+
                 if(chatMessage.type === 'ADD_FRIEND' || chatMessage.type === 'ACCEPT_FRIEND'){
                     showNotification('https://via.placeholder.com/50', chatMessage.content);
                 }
                 renderNotify();
                 renderStatusFriend();
+
             });
         });
     }
@@ -815,31 +800,6 @@
         renderCurrentStatusFriend(message.type);
     }
 
-    function renderNotify(){
-        $.ajax({
-            url: '/notifications/user',
-            method: 'GET',
-            success: function(data) {
-                let notificationPanelWrap = $('#notification-item-render');
-                notificationPanelWrap.empty();
-                data.forEach(function(notification) {
-                    let notificationItem = `
-                    <div class="notification-item">
-                        <img src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" alt="Profile picture" width="40" height="40">
-                        <div class="text">
-                            <div class="title">${notification.content}</div>
-                            <div class="subtitle">${new Date(notification.createdAt).toLocaleString()}</div>
-                        </div>
-                    </div>
-                `;
-                    notificationPanelWrap.append(notificationItem);
-                });
-            },
-            error: function(error) {
-                console.error('Error fetching notifications:', error);
-            }
-        });
-    }
 
     function toggleNotifications() {
         let panel = document.getElementById('notificationPanel');
@@ -856,12 +816,17 @@
         let htmlRender = "";
         switch (type) {
             case "ADD_FRIEND":
-                htmlRender = `<button class="following">Pending</button>`
+                htmlRender = `<button class="following">Pending</button>
+                                <button onclick="onClickMessageCreate()">
+                                    <a >
+                                        Message
+                                    </a>
+                                </button>`
                 break;
             case "ACCEPT_FRIEND":
                 htmlRender = `<button class="following" onClick="sendUnFriend()">Unfriend</button>
-                                <button>
-                                    <a href="/chat">
+                                <button onclick="onClickMessageCreate()">
+                                    <a >
                                         Message
                                     </a>
                                 </button>`
@@ -869,11 +834,22 @@
             case "UNFRIEND":
                 htmlRender = `
                  <button class="following" onClick="sendAddFriend()">Add Friend</button>
+                 <button onclick="onClickMessageCreate()">
+                                    <a >
+                                        Message
+                                    </a>
+                                </button>
                 `
                 break;
             case "CANCEL_FRIEND":
                 htmlRender = `
-                <button class="following" onClick="sendAddFriend()">Add Friend</button>`
+                <button class="following" onClick="sendAddFriend()">Add Friend</button>
+                <button onclick="onClickMessageCreate()">
+                                    <a >
+                                        Message
+                                    </a>
+                                </button>
+                `
                 break;
             default:
                 break;
@@ -951,13 +927,15 @@
             data: { name: name},
             success: function(response) {
                 let recentItemsHtml = response.map(user => `
-                        <a style="text-decoration: none; color:black; " href="/user/${user.userId}">
-                            <div class="recent-item">
-                                <img alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
-                                <span>${user.fullName}</span>
-                            </div>
-                        </a>
-                    `).join('');
+                    <a style="text-decoration: none; color:black;" href="/user/${user.userId}">
+                        <div class="recent-item">
+                            <img alt="User profile picture" height="40"
+                                src="${user.avatarURL ? '/static/files/' + user.avatarURL : '/static/files/empty_image.png'}"
+                                width="40"/>
+                            <span>${user.fullName}</span>
+                        </div>
+                    </a>
+                `).join('');
                 $('.recent-item-render').html(recentItemsHtml);
             },
             error: function (xhr, status, error) {
@@ -1108,10 +1086,10 @@
         });
     }
 
-    $(document).ready(function() {
-        const userId = /*[[${userId}]]*/ 'defaultUser';
-        loadUserPosts(userId);
-    });
+    // $(document).ready(function() {
+    //     //const userId = /*[[${userId}]]*/ 'defaultUser';
+    //     //loadUserPosts(userId);
+    // });
 
     $(document).on('click', '.reaction-icon', function() {
         const postElement = $(this).closest('.post');
@@ -1220,6 +1198,48 @@
         const newIndex = (activeIndex + 1) % images.length;
         goToPostImage(postElement.find('.post-dot').eq(newIndex), newIndex);
     }
+
+    function uploadFileClick(){
+        let formData = new FormData();
+        let fileInput = $('#fileUploadInput')[0].files[0];
+
+        if (!fileInput) {
+            alert("Please choose an image file to upload!");
+            return;
+        }
+        formData.append("file", fileInput);
+
+        $.ajax({
+            url: '/user/upload',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                const profilePic = $("#profilePic");
+                profilePic.attr("src", "/static/files/" + response);
+            },
+            error: function (err) {
+               alert(response.message)
+            }
+        });
+    }
+
+    function onClickMessageCreate(){
+        console.log(123);
+        $.ajax({
+            url: '/chat/createChat',
+            method: 'POST',
+            data: {user_id: userIdCurrent},
+            success: function(response) {
+                window.location.href = '/chat';
+            },
+            error: function(xhr, status, error) {
+                console.error('Error during API call:', error);
+            }
+        });
+    }
+
 </script>
 </body>
 </html>

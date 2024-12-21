@@ -10,8 +10,10 @@ public class MessageWithSenderNameDto {
     private LocalDateTime sentAt;
     private Boolean isRead;
     private String senderName;
+    public String avatarUrl;
 
-    public MessageWithSenderNameDto(Long messageId, Long chatId, Long senderId, String messageText, LocalDateTime sentAt, Boolean isRead, String senderName) {
+
+    public MessageWithSenderNameDto(Long messageId, Long chatId, Long senderId, String messageText, LocalDateTime sentAt, Boolean isRead, String senderName, String avatarUrl) {
         this.messageId = messageId;
         this.chatId = chatId;
         this.senderId = senderId;
@@ -19,6 +21,7 @@ public class MessageWithSenderNameDto {
         this.sentAt = sentAt;
         this.isRead = isRead;
         this.senderName = senderName;
+        this.avatarUrl = avatarUrl;
     }
     // Getters and setters
     public Long getMessageId() {
@@ -75,5 +78,13 @@ public class MessageWithSenderNameDto {
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

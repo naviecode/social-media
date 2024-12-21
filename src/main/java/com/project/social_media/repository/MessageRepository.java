@@ -23,7 +23,7 @@ public interface MessageRepository extends JpaRepository<Messages, Long> {
 
     List<Messages> findByChatId(Long chatId);
 
-    @Query("SELECT new com.project.social_media.dto.MessageWithSenderNameDto(m.messageId, m.chatId, m.senderId, m.messageText, m.sentAt, m.isRead, u.fullName) " +
+    @Query("SELECT new com.project.social_media.dto.MessageWithSenderNameDto(m.messageId, m.chatId, m.senderId, m.messageText, m.sentAt, m.isRead, u.fullName, u.avatarURL) " +
             "FROM Messages m JOIN Users u ON m.senderId = u.userId WHERE m.chatId = :chatId")
     List<MessageWithSenderNameDto> findMessagesWithSenderNameByChatId(@Param("chatId") Long chatId);
 
