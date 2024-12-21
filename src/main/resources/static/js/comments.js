@@ -9,24 +9,42 @@ function openCommentPopup(postId, postAuthorName) {
         .then(response => response.json())
         .then(comments => {
             displayCommentsPosts(comments);
-            document.body.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
         })
         .catch(error => console.error('Error loading comments:', error));
 }
 
 function closeCommentPopup() {
     document.getElementById('comment-popup-container').style.display = 'none';
-    document.body.style.backgroundColor = 'white';
+    let overlay = document.getElementById('overlay');
+    overlay.style.display = 'none';
 }
 
 function displayCommentsPosts(comments) {
     const commentContainer = document.querySelector('.comment-popup-container .comments');
     commentContainer.innerHTML = '';
 
+    const CommentPopupContainer = document.getElementById('comment-popup-container');
+    let overlay = document.getElementById('overlay');
+
+    // Create overlay if it doesn't exist
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'overlay';
+        document.body.appendChild(overlay);
+    }
+
     // Process each comment and append to the container
     comments.forEach(comment => {
         const commentElement = createCommentElement(comment);
         commentContainer.appendChild(commentElement);
+        CommentPopupContainer.style.display = 'block';
+        overlay.style.display = 'block'; // Show the overlay
+
+        // Close popup and hide overlay on clicking the overlay
+        overlay.addEventListener('click', function () {
+            CommentPopupContainer.style.display = 'none';
+            overlay.style.display = 'none';
+        });
     });
 }
 
@@ -126,7 +144,7 @@ function addReplyInput(event) {
     replyContainer.className = 'reply-input-container';
     replyContainer.innerHTML = `
         <div class="align-center">
-                    <img alt="User profile picture" height="40" src="${userAvatarUrl}" width="40">
+                    <img alt="User profile picture" height="40" src="${userLogAvatarUrl}" width="40">
                     <div class="comment-content" style="outline: rgb(0 0 0) dashed 2px;background-color: #ffffff;">
                         <p class="my_comment_name" style="">${sanitizedFullName}</p>
                         <div class="footer">
@@ -138,6 +156,8 @@ function addReplyInput(event) {
     comment.appendChild(replyContainer);
 }
 
+let commentSubscription = null;
+
 function handleReplyKeyPress(event, parentCommentId) {
     if (event.key === "Enter") {
         const inputElement = event.target;
@@ -147,10 +167,40 @@ function handleReplyKeyPress(event, parentCommentId) {
 
         const comment = { postId: currentPostId, userId, content, parentCommentId };
 
-        stompClient.send(`/app/send-comment/${currentPostId}`, {}, JSON.stringify(comment));
-        inputElement.value = ""; // Clear the input field
+        // Unsubscribe from the previous subscription if it exists
+        if (commentSubscription) {
+            commentSubscription.unsubscribe();
+        }
 
-        closeCommentPopup();
-        openCommentPopup(currentPostId, postAuthor);
+        // Subscribe to the topic to receive the response
+        commentSubscription = stompClient.subscribe(`/topic/comments/${currentPostId}`, (response) => {
+            const newComment = JSON.parse(response.body);
+
+            const replyInputContainer = inputElement.closest('.reply-input-container');
+            if (replyInputContainer) {
+                replyInputContainer.remove();
+            }
+
+            const newCommentElement = createCommentElement(newComment);
+
+            // Find the parent comment element and append the new comment to its replies container
+            const parentCommentElement = document.querySelector(`.comment[data-comment-id="${parentCommentId}"]`);
+            if (parentCommentElement) {
+                let repliesContainer = parentCommentElement.querySelector('.replies');
+                if (!repliesContainer) {
+                    repliesContainer = document.createElement('div');
+                    repliesContainer.className = 'replies';
+                    parentCommentElement.appendChild(repliesContainer);
+                }
+                repliesContainer.appendChild(newCommentElement);
+            } else {
+                // If no parent comment is found, append to the main comments container
+                const commentContainer = document.querySelector('.comment-popup-container .comments');
+                commentContainer.appendChild(newCommentElement);
+            }
+        });
+
+        // Send the comment
+        stompClient.send(`/app/send-comment/${currentPostId}`, {}, JSON.stringify(comment));
     }
 }
