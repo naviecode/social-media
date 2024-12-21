@@ -1042,7 +1042,7 @@
                             postElement = $(
                                 `<div class="post" data-post-id="${post.postId}">
                                 <div class="post-header">
-                                    <img alt="Profile picture" height="32" src="${post.avatarUrl}" width="32"/>
+                                    <img alt="Profile picture" height="32" src="/static/files/${post.avatarUrl}" width="32"/>
                                     <span>${post.fullNamePoster}</span>
                                 </div>
                                 <div class="post-image">
@@ -1143,7 +1143,7 @@
         const commentElement = document.createElement("div");
         commentElement.classList.add("comment");
         commentElement.innerHTML = `
-        <img alt="User profile picture" height="32" src="${comment.avatarUrl}" width="32"/>
+        <img alt="User profile picture" height="32" src="/static/files/${comment.avatarUrl}" width="32"/>
         <div class="comment-content">
             <span>${comment.fullName}</span> ${comment.content}
         </div>

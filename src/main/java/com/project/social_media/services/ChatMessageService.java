@@ -6,6 +6,7 @@ import com.project.social_media.models.Messages;
 import com.project.social_media.dto.ResponseServiceEntity;
 import com.project.social_media.repository.ChatMemberRepository;
 import com.project.social_media.repository.MessageRepository;
+import com.project.social_media.utils.EncryptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,22 +21,29 @@ public class ChatMessageService {
     private ChatMemberRepository chatMemberRepository;
 
     public ResponseServiceEntity<ChatMessage> saveMessages(ChatMessage chatMessage) {
-        boolean isMember = chatMemberRepository.existsByChatIdAndUserId(chatMessage.getChatId(), chatMessage.getSenderId());
-        if (!isMember) {
-            return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_MESSAGE_EXISTS);
+        try {
+            boolean isMember = chatMemberRepository.existsByChatIdAndUserId(chatMessage.getChatId(), chatMessage.getSenderId());
+            if (!isMember) {
+                return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_MESSAGE_EXISTS);
+            }
+
+            // Mã hóa nội dung tin nhắn
+            String encryptedContent = EncryptionUtils.encrypt(chatMessage.getContent());
+
+            Messages message = new Messages();
+            message.setChatId(chatMessage.getChatId());
+            message.setSenderId(chatMessage.getSenderId());
+            message.setMessageText(encryptedContent); // Lưu nội dung đã mã hóa
+            message.setSentAt(LocalDateTime.now());
+            message.setIsRead(false);
+
+            messageRepository.save(message);
+
+            return ResponseServiceEntity.success(chatMessage, ErrorCodes.SUCCESS);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseServiceEntity.error(ErrorCodes.ERRORS);
         }
-
-        Messages message = new Messages();
-        message.setChatId(chatMessage.getChatId());
-        message.setSenderId(chatMessage.getSenderId());
-        message.setMessageText(chatMessage.getContent());
-        message.setSentAt(LocalDateTime.now());
-        message.setIsRead(false);
-
-        messageRepository.save(message);
-
-        return ResponseServiceEntity.success(chatMessage, ErrorCodes.SUCCESS);
-
     }
 
 //    public void saveMessage(ChatMessage chatMessage) {

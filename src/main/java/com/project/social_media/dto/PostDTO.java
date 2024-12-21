@@ -17,6 +17,7 @@ public class PostDTO {
     private List<byte[]> imagesData;
     private String fullNamePoster;
     private String avatarUrlPoster;
+    private Long userId;
 
     @JsonProperty("isLiked")
     private boolean isLiked; // New field
@@ -123,5 +124,13 @@ public class PostDTO {
 
     public void setLiked(boolean isLiked) {
         this.isLiked = isLiked;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
