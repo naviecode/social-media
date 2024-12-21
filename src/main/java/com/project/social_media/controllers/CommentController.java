@@ -25,9 +25,9 @@ public class CommentController {
 
     @MessageMapping("/send-comment/{postId}")
     @SendTo("/topic/comments/{postId}")
-    public long sendComment(CommentDTO commentDTO) {
+    public CommentResponseDTO sendComment(CommentDTO commentDTO) {
         Comments comment = commentService.createComment(commentDTO.getPostId(), commentDTO.getUserId(), commentDTO.getContent(), commentDTO.getParentCommentId());
-        return commentService.getCommentCountByPostId(commentDTO.getPostId());
+        return commentService.convertToDTO(comment);
     }
 
     @GetMapping("/{postId}")
