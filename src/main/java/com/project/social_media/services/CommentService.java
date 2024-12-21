@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,16 +59,16 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    private CommentResponseDTO convertToDTO(Comments comment) {
+    public CommentResponseDTO convertToDTO(Comments comment) {
         CommentResponseDTO dto = new CommentResponseDTO();
         dto.setCommentId(comment.getCommentId());
         dto.setUserFullName(comment.getUser().getFullName());
         dto.setUserAvatarUrl(comment.getUser().getAvatarURL());
         dto.setContent(comment.getContent());
         dto.setCreatedAt(comment.getCreatedAt());
-        dto.setLikeCount(comment.getReactions().size());
-        dto.setIsLiked(comment.getReactions().stream().anyMatch(reaction -> reaction.getUser().getUserId().equals(SecurityUtils.getLoggedInUserId())));
-        dto.setReplies(comment.getReplies().stream().map(this::convertToDTO).collect(Collectors.toList()));
+        dto.setLikeCount(comment.getReactions() != null ? comment.getReactions().size() : 0);
+        dto.setIsLiked(comment.getReactions() != null && comment.getReactions().stream().anyMatch(reaction -> reaction.getUser().getUserId().equals(SecurityUtils.getLoggedInUserId())));
+        dto.setReplies(comment.getReplies() != null ? comment.getReplies().stream().map(this::convertToDTO).collect(Collectors.toList()) : Collections.emptyList());
         return dto;
     }
 

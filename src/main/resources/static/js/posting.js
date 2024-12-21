@@ -92,6 +92,10 @@ function closePopup() {
     document.querySelector('.post-creation').style.display = 'none';
     document.getElementById('popup-container').style.display = 'none';
     document.body.style.backgroundColor = 'white';
+    const popupContainer = document.getElementById('popup-container');
+    let overlay = document.getElementById('overlay');
+    popupContainer.style.display = 'none';
+    overlay.style.display = 'none';
 }
 
 showImage(currentIndex);

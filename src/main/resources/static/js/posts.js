@@ -120,7 +120,7 @@ function loadPosts() {
                         postElement = $(
                             `<div class="post" data-post-id="${post.postId}">
                                 <div class="post-header">
-                                    <img alt="Profile picture" height="32" src="${post.avatarUrl}" width="32"/>
+                                    <img alt="Profile picture" height="32" src="${post.avatarUrlPoster}" width="32"/>
                                     <span>${post.fullNamePoster}</span>
                                 </div>
                                 <div class="post-image">
