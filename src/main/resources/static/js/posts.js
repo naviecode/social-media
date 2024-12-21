@@ -23,17 +23,26 @@ function loadPosts() {
                 posts.forEach(function(post) {
                     stompClient.subscribe('/topic/update-reaction/' + post.postId, (message) => {
                         const reactionUpdate = JSON.parse(message.body);
-                        const postElement = $(`.post[data-post-id="${reactionUpdate.postId}"]`);
-                        const reactionIcon = reactionUpdate.isLiked
-                            ? `<div id="reaction-icon" class="reaction-icon">
-                           <i class="fas fa-heart" style="color: red;"></i>
-                       </div>`
-                            : `<div id="reaction-icon" class="reaction-icon">
-                           <i class="far fa-heart"></i>
-                       </div>`;
+                        console.log(reactionUpdate);
+                        console.log(userLoginId);
+                        console.log(reactionUpdate.userId);
 
-                        postElement.find('.reaction-icon').replaceWith(reactionIcon);
-                        postElement.find('.like-count').text(reactionUpdate.reactionCount);
+                        const postElement = $(`.post[data-post-id="${reactionUpdate.postId}"]`);
+
+                        if(userLoginId == reactionUpdate.userId){
+                                const reactionIcon = reactionUpdate.isLiked
+                                    ? `<div id="reaction-icon" class="reaction-icon">
+                               <i class="fas fa-heart" style="color: red;"></i>
+                           </div>`
+                                    : `<div id="reaction-icon" class="reaction-icon">
+                               <i class="far fa-heart"></i>
+                           </div>`;
+
+                            postElement.find('.reaction-icon').replaceWith(reactionIcon);
+                            postElement.find('.like-count').text(reactionUpdate.reactionCount);
+                        }
+
+
                     });
                     stompClient.subscribe('/topic/send-comment/' + post.postId, (message) => {
                         const newComment = JSON.parse(message.body);
@@ -75,7 +84,7 @@ function loadPosts() {
                         postElement = $(
                             `<div class="post" data-post-id="${post.postId}">
                                 <div class="post-header">
-                                    <img alt="Profile picture" height="32" src="${post.avatarUrlPoster}" width="32"/>
+                                    <img alt="Profile picture" height="32" src="/static/files/${post.avatarUrlPoster}" width="32"/>
                                     <span>${post.fullNamePoster}</span>
                                 </div>
                                 <div class="post-create-dt" style="font-weight: 300; color: grey; padding: 0 10px;">
@@ -95,7 +104,7 @@ function loadPosts() {
                                     </div>
                                 </div>
                                 <div class="post-footer">
-                                    <img alt="Profile picture of user" height="32" src="${post.avatarUrl}" width="32"/>
+                                    <img alt="Profile picture of user" height="32" src="/static/files/${post.avatarUrl}" width="32"/>
                                     <input id="comment-input-${post.postId}" placeholder="Add a comment..." type="text" onkeypress="handleCommentKeyPress(event, ${post.postId})"/>
                                 </div>
                             </div>`
@@ -120,7 +129,7 @@ function loadPosts() {
                         postElement = $(
                             `<div class="post" data-post-id="${post.postId}">
                                 <div class="post-header">
-                                    <img alt="Profile picture" height="32" src="${post.avatarUrl}" width="32"/>
+                                    <img alt="Profile picture" height="32" src="/static/files/${post.avatarUrlPoster}" width="32"/>
                                     <span>${post.fullNamePoster}</span>
                                 </div>
                                 <div class="post-image">
@@ -147,7 +156,7 @@ function loadPosts() {
                                     <span>${post.fullNamePoster}</span> ${post.content}
                                 </div>
                                 <div class="post-footer">
-                                    <img alt="Profile picture of user" height="32" src="${post.avatarUrl}" width="32"/>
+                                    <img alt="Profile picture" height="32" src="/static/files/${post.avatarUrlPoster}" width="32"/>
                                     <input id="comment-input-${post.postId}" placeholder="Add a comment..." type="text" onkeypress="handleCommentKeyPress(event, ${post.postId})"/>
                                 </div>
                             </div>`
@@ -286,7 +295,7 @@ function displayComment(comment) {
     const commentElement = document.createElement("div");
     commentElement.classList.add("comment");
     commentElement.innerHTML = `
-        <img alt="User profile picture" height="32" src="${comment.avatarUrl}" width="32"/>
+        <img alt="User profile picture" height="32" src="/static/files/${comment.avatarUrl}" width="32"/>
         <div class="comment-content">
             <span>${comment.fullName}</span> ${comment.content}
         </div>

@@ -5,6 +5,7 @@ import com.project.social_media.dto.MessageWithSenderNameDto;
 import com.project.social_media.dto.ResponseServiceEntity;
 import com.project.social_media.dto.ResponseServiceListEntity;
 import com.project.social_media.repository.MessageRepository;
+import com.project.social_media.utils.EncryptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,17 @@ public class MessagesService {
 
     public ResponseServiceListEntity<MessageWithSenderNameDto> GetAllMessagesByChatId(Long chatId) {
         List<MessageWithSenderNameDto> result = messageRepository.findMessagesWithSenderNameByChatId(chatId);
+
+        result.forEach(message -> {
+            try {
+                String decryptedContent = EncryptionUtils.decrypt(message.getMessageText());
+                message.setMessageText(decryptedContent);
+            } catch (Exception e) {
+                e.printStackTrace();
+                message.setMessageText("Error decrypting message");
+            }
+        });
+
         return ResponseServiceListEntity.success(result, result.stream().count(), ErrorCodes.SUCCESS);
     }
 

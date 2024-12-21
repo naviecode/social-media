@@ -1,4 +1,4 @@
-<img alt="Profile picture" onclick="openModalImage()" style="cursor: pointer" id="profilePic" height="150" th:src="${user.getAvatarUrl() != null ? '/uploads/' + user.getAvatarUrl() : '/static/files/empty_image.png'}" width="150"/>
+<img alt="Profile picture" onclick="openModalImage()" style="cursor: pointer" id="profilePic" height="150" th:src="${user.getAvatarUrl() != null ? '/static/files/' + user.getAvatarUrl() : '/static/files/empty_image.png'}" width="150"/>
 <div class="profile-info">
     <h1 th:text="${user.getFullName()}"></h1>
     <div class="stats">

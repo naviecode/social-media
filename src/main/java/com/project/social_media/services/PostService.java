@@ -133,6 +133,7 @@ public class PostService {
         reactionsRepository.save(reaction);
 
         PostDTO postDTO = getPostDTO(post, userId);
+        postDTO.setUserId(userId);
         messagingTemplate.convertAndSend("/topic/update-reaction", postDTO);
         return postDTO;
     }
@@ -145,6 +146,7 @@ public class PostService {
         reactionsRepository.deleteByPostAndUserId(post, userId);
 
         PostDTO postDTO = getPostDTO(post, userId);
+        postDTO.setUserId(userId);
         messagingTemplate.convertAndSend("/topic/update-reaction", postDTO);
         return postDTO;
     }

@@ -38,7 +38,7 @@ function createCommentElement(comment) {
     commentElement.innerHTML = `
         <div class="comment-header">
             <div class="align-center">
-                <img alt="User profile picture" height="40" src="${comment.userAvatarUrl || '/default-avatar.png'}" width="40"/>
+                <img alt="User profile picture" height="40" src="/static/files/${comment.userAvatarUrl || '/default-avatar.png'}" width="40"/>
                 <div class="comment-content">
                     <p class="name">${comment.userFullName}</p>
                     <p class="time">${formatTime(comment.createdAt)}</p>
