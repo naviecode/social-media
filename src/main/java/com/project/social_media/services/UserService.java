@@ -45,7 +45,7 @@ public class UserService {
             return ResponseServiceEntity.error(ErrorCodes.ERROR_USER_NOT_EXISTS);
         }
         long numberOfFriends = friendsRepository.countByUserId(userId);
-        UserInfoDto userInfoDto = new UserInfoDto(user.getFullName(), user.getUsername(), numberOfFriends);
+        UserInfoDto userInfoDto = new UserInfoDto(user.getFullName(), user.getUsername(), numberOfFriends, user.getAvatarURL());
 
         return ResponseServiceEntity.success(userInfoDto, ErrorCodes.SUCCESS);
     }
@@ -91,6 +91,13 @@ public class UserService {
         Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         user.setIsActive(false);
         usersRepository.save(user);
+    }
+
+    public ResponseServiceEntity<String> saveAvatarUrl(Long userId, String avatarUrl) {
+        Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setAvatarURL(avatarUrl);
+        usersRepository.save(user);
+        return ResponseServiceEntity.success(avatarUrl, ErrorCodes.SUCCESS);
     }
 
 //    @Autowired

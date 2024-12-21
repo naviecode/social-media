@@ -27,6 +27,11 @@ public class FriendService {
         return ResponseServiceListEntity.success(result, result.stream().count(), ErrorCodes.SUCCESS);
     }
 
+    public ResponseServiceListEntity<FriendWithUsernameDto> getFindNonFriendsWithUsernameByUserId1(Long userId, String name) {
+        List<FriendWithUsernameDto> result = friendsRepository.findNonFriendsWithUsernameByUserId1(userId, name);
+        return ResponseServiceListEntity.success(result, result.stream().count(), ErrorCodes.SUCCESS);
+    }
+
     public ResponseServiceListEntity<FriendWithUsernameDto> searchFriends(Long userId, String name){
         List<FriendWithUsernameDto> result = friendsRepository.findFriendsWithUsernameByUserId1AndName(userId, name);
         return ResponseServiceListEntity.success(result, result.stream().count(), ErrorCodes.SUCCESS);

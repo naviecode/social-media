@@ -1,7 +1,7 @@
 <div class="header">
     <div class="user">
-        <img alt="User profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
-        <span class="username" th:text="${fullName}">
+        <img alt="User profile picture" height="40"     th:src="${userLogin.getAvatarURL() != null ? '/static/files/' + userLogin.getAvatarURL(): '/static/files/empty_image.png'}"  width="40"/>
+        <span class="username" th:text="${userLogin.fullName}">
         </span>
     </div>
     <div class="icons">
@@ -19,7 +19,7 @@
 <div class="contacts" >
     <div class="contracts_wrap" th:each="friend : ${friends}">
         <div class="contact " th:classappend="${friend.getUnreadMessagesCount() > 0 ? 'highlight' : ''}"  th:attr="data-userid2=${friend.getUserId2()}, data-chatId=${friend.getChatId()}, data-usernameId2=${friend.getUsername()}" onclick="loadMessages(this)">
-            <img alt="Contact profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
+            <img alt="User profile picture" height="40"     th:src="${friend.getAvatarUrl() != null ? '/static/files/' + friend.getAvatarUrl(): '/static/files/empty_image.png'}"  width="40"/>
             <div class="info">
                 <div class="name" th:text="${friend.getFullName()}">
                 </div>
@@ -32,13 +32,26 @@
 <div class="contacts">
     <div class="contracts_wrap" th:each="group : ${chatGroups}">
         <div class="contact" th:attr="data-chatId=${group.getChatId()}" onclick="loadMessages(this)">
-            <img alt="Contact profile picture" height="40" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" width="40"/>
+            <img alt="Contact profile picture" height="40" src="/static/files/empty_image.png" width="40"/>
             <div class="info">
                 <div class="name" th:text="${group.getGroupName()}">
                 </div>
                 <div class="status">
                     Group chat
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="contacts" >
+    <div class="contracts_wrap" th:each="noFriend : ${noFriends}">
+        <div class="contact " th:classappend="${noFriend.getUnreadMessagesCount() > 0 ? 'highlight' : ''}"  th:attr="data-userid2=${noFriend.getUserId2()}, data-chatId=${noFriend.getChatId()}, data-usernameId2=${noFriend.getUsername()}" onclick="loadMessages(this)">
+            <img alt="User profile picture" height="40"     th:src="${noFriend.getAvatarUrl() != null ? '/static/files/' + noFriend.getAvatarUrl(): '/static/files/empty_image.png'}"  width="40"/>
+            <div class="info">
+                <div class="name" th:text="${noFriend.getFullName()}">
+                </div>
+                <div th:if="${noFriend.getUnreadMessagesCount() > 0}" class="status" th:text="|Bạn đang có ${noFriend.getUnreadMessagesCount()} tin nhắn chưa đọc|"></div>
             </div>
         </div>
     </div>

@@ -107,20 +107,13 @@ public class ChatService {
         }
         chatMembersRepository.delete(chatMember);
 
-        //Nếu khi xóa xong chỉ còn 2 user thì xóa nhóm chat luôn tránh xung đột
-        if(chatMembersRepository.countMembersByChatId(chatId) == 2){
-            Chats chat = chatRepository.findById(chatId).orElse(null);
-            if(chat == null){
-                return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_NOT_FOUND);
-            }
-            chatRepository.delete(chat);
-            return ResponseServiceEntity.success("Delete chat", ErrorCodes.SUCCESS);
-        }
+
 
         return ResponseServiceEntity.success("Member removed successfully", ErrorCodes.SUCCESS);
     }
 
     public ResponseServiceEntity<String> leaveGroup(Long chatId, Long userId) {
+        Long userId_1_Long = SecurityUtils.getLoggedInUserId();
 
         ChatMembers chatMember = chatMembersRepository.findByChatIdAndUserId(chatId, userId);
         if(!chatMembersRepository.isMemberOfChat(chatId, SecurityUtils.getLoggedInUserId())){
@@ -130,6 +123,18 @@ public class ChatService {
         if (chatMember == null) {
             return ResponseServiceEntity.error(ErrorCodes.ERROR_USER_NOT_EXISTS);
         }
+        Chats chat = chatRepository.findById(chatId).orElse(null);
+
+        if(chat == null){
+            return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_NOT_FOUND);
+        }
+
+        if(chat.getUserIdCreated().equals(userId_1_Long) && chatMembersRepository.countMembersByChatId(chatId) <= 1){
+            chatMembersRepository.delete(chatMember);
+            chatRepository.delete(chat);
+            return ResponseServiceEntity.success("Delete chat", ErrorCodes.SUCCESS);
+        }
+
         chatMembersRepository.delete(chatMember);
         return ResponseServiceEntity.success("Left group successfully", ErrorCodes.SUCCESS);
     }
@@ -142,6 +147,7 @@ public class ChatService {
         if (!chat.getUserIdCreated().equals(userId)) {
             return ResponseServiceEntity.error(ErrorCodes.ERROR_CHAT_NOT_CREATED);
         }
+        chatMembersRepository.deleteByChatId(chat.getChatId());
         chatRepository.delete(chat);
         return ResponseServiceEntity.success("Chat deleted successfully", ErrorCodes.SUCCESS);
     }

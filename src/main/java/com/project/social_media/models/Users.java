@@ -33,7 +33,7 @@ public class Users {
     @Size(max = 100, message = "Full name must not exceed 100 characters")
     @Column(nullable = true, length = 100)
     private String fullName;
-
+    @Column(nullable = true, length = 1000)
     private String avatarURL;
 
 
@@ -43,7 +43,7 @@ public class Users {
     @Column(nullable = true)
     private LocalDateTime lastActive;
 
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(nullable = true, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isActive;
 
     public Users() {

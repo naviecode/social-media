@@ -36,7 +36,7 @@ public interface FriendsRepository  extends JpaRepository<Friends, Long> {
     boolean isFriend(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
 
 
-    @Query("SELECT new com.project.social_media.dto.FriendWithUsernameDto(f.friendId, f.userId1, f.userId2, f.status, u.fullName, cm.chatId, u.username, " +
+    @Query("SELECT new com.project.social_media.dto.FriendWithUsernameDto(f.friendId, f.userId1, f.userId2, f.status, u.fullName, cm.chatId, u.username, u.avatarURL, " +
         "(SELECT COUNT(m) FROM Messages m WHERE m.chatId = cm.chatId AND m.isRead = false AND m.senderId <> :userId1), " +
         "(SELECT u2.username FROM Messages m2 JOIN Users u2 ON m2.senderId = u2.userId WHERE m2.chatId = cm.chatId ORDER BY m2.sentAt DESC LIMIT 1)) " +
         "FROM Friends f " +
@@ -45,10 +45,25 @@ public interface FriendsRepository  extends JpaRepository<Friends, Long> {
         "(SELECT cm2.chatId FROM ChatMembers cm2 WHERE cm2.userId = :userId1) " +
         "WHERE f.userId1 = :userId1 AND f.status = 'accepted' AND " +
         "(SELECT COUNT(cm3.userId) FROM ChatMembers cm3 WHERE cm3.chatId = cm.chatId) = 2 AND " +
+            "EXISTS (SELECT c3.chatId FROM Chats c3 WHERE c3.chatId = cm.chatId and c3.isGroupChat = false) AND" +
         "(LOWER(u.fullName) LIKE LOWER(CONCAT('%', :name, '%')) OR :name IS NULL OR :name = '') " +
         "ORDER BY (SELECT m.sentAt FROM Messages m WHERE m.chatId = cm.chatId ORDER BY m.sentAt DESC LIMIT 1) DESC")
     List<FriendWithUsernameDto> findFriendsWithUsernameByUserId1(@Param("userId1") Long userId1, @Param("name") String name);
 
+    @Query("SELECT new com.project.social_media.dto.FriendWithUsernameDto(f.friendId, f.userId1, u.userId, f.status, u.fullName, cm.chatId, u.username, u.avatarURL, " +
+            "(SELECT COUNT(m) FROM Messages m WHERE m.chatId = cm.chatId AND m.isRead = false AND m.senderId <> :userId1), " +
+            "(SELECT u2.username FROM Messages m2 JOIN Users u2 ON m2.senderId = u2.userId WHERE m2.chatId = cm.chatId ORDER BY m2.sentAt DESC LIMIT 1)) " +
+            "FROM Users u " +
+            "JOIN ChatMembers cm ON cm.userId = u.userId " +
+            "LEFT JOIN Friends f ON (f.userId1 = :userId1 AND f.userId2 = u.userId AND f.status = 'accepted') OR (f.userId1 = u.userId AND f.userId2 = :userId1 AND f.status = 'accepted') " +
+            "WHERE cm.chatId IN " +
+            "(SELECT cm2.chatId FROM ChatMembers cm2 WHERE cm2.userId = :userId1 ) " +
+            "AND (SELECT COUNT(cm3.userId) FROM ChatMembers cm3 WHERE cm3.chatId = cm.chatId) = 2 " +
+            "AND f.friendId IS NULL " +
+            "AND u.userId != :userId1 " +
+            "AND (LOWER(u.fullName) LIKE LOWER(CONCAT('%', :name, '%')) OR :name IS NULL OR :name = '') " +
+            "ORDER BY (SELECT m.sentAt FROM Messages m WHERE m.chatId = cm.chatId ORDER BY m.sentAt DESC LIMIT 1) DESC")
+    List<FriendWithUsernameDto> findNonFriendsWithUsernameByUserId1(@Param("userId1") Long userId1, @Param("name") String name);
   
     @Query("SELECT CASE WHEN f.userId1 = :userId THEN f.userId2 ELSE f.userId1 END FROM Friends f WHERE (f.userId1 = :userId OR f.userId2 = :userId) AND f.status = 'accepted'")
     List<Long> findAcceptedFriendIds(Long userId);

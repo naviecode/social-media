@@ -27,6 +27,7 @@ function subscribeChat() {
     //Nhận thông báo từ tương tác giữa người dùng
     stompClient_main.subscribe('/user/queue/notifications', function (message) {
         const chatMessage = JSON.parse(message.body);
+        console.log("da duoc cai dat");
         showNotification('https://via.placeholder.com/50', chatMessage.content);
         renderNotify();
     });
@@ -56,20 +57,40 @@ function renderNotify(){
         method: 'GET',
         success: function(data) {
             let notificationPanelWrap = $('#notification-item-render');
+            console.log(data);
             if(notificationPanelWrap){
                 notificationPanelWrap.empty();
                 data.forEach(function(notification) {
-                    let notificationItem = `
+
+                    let avatarSrc = notification.avatarUrl ? '/static/files/' + notification.avatarUrl : '/static/files/empty_image.png';
+
+                    let notificationItem = '';
+                    if (notification.notifyType === 'personal') {
+                        notificationItem = `
+                        <div class="notification-item">
+                            <a href="/user/${notification.senderId}" style="display: flex; text-decoration: none">
+                                <img src="${avatarSrc}" alt="Profile picture" width="40" height="40">
+                                <div class="text">
+                                    <div class="title">${notification.content}</div>
+                                    <div class="subtitle">${new Date(notification.createdAt).toLocaleString()}</div>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                    } else {
+                        notificationItem = `
                     <div class="notification-item">
-                        <img src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200" alt="Profile picture" width="40" height="40">
+                        <img src="${avatarSrc}" alt="Profile picture" width="40" height="40">
                         <div class="text">
                             <div class="title">${notification.content}</div>
                             <div class="subtitle">${new Date(notification.createdAt).toLocaleString()}</div>
                         </div>
                     </div>
                 `;
+                    }
                     notificationPanelWrap.append(notificationItem);
                 });
+
             }
 
         },

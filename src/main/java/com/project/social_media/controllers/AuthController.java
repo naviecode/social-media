@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/auth")
@@ -48,17 +49,18 @@ public class AuthController {
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("user") Users user,
                            BindingResult bindingResult,
-                           Model model) {
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
         if(bindingResult.hasErrors()) {
             model.addAttribute("message", "Validation failed");
             return "auth/register";
         }
         ResponseServiceEntity<Users> result = authService.register(user);
         if(result.getErrorCode().equals("0")) {
-            model.addAttribute("message", result.getMessage());
+            redirectAttributes.addFlashAttribute("messageError", result.getMessage());
             return "redirect:/auth/login";
         }
-        model.addAttribute("message", result.getMessage());
+        redirectAttributes.addFlashAttribute("messageError", result.getMessage());
         return "auth/register";
     }
     @PostMapping("/login")
